@@ -38,6 +38,23 @@ const W = 640;                   // screen width; the original view is 2x 320
 const H = W / 2;                 // viewheight = viewwidth/2 (WL_MAIN.C:1330)
 const PERSP = 0.68359375 * W;    // = scale, distance to the projection plane
 const ASPECT = 1.2;              // 320x200 stretched to 4:3
+// The whole screen: 160 rows of view plus the 40-row status bar, x2.4.
+const GAME_H = H * ASPECT + M.hud.bar.h * (H * ASPECT / 160);   // 480
+
+// Page padding, and the factor that fits the fixed 640x480 screen into the
+// width the page actually has.
+//
+// The width is read as 100cqw off a size container on <body>, NOT as 100vw:
+// 100vw includes the scrollbar, and on a platform with classic scrollbars that
+// is fifteen pixels the game does not have — enough to push a horizontal
+// scrollbar onto a narrow window. cqw is the content box, which is exact.
+//
+// Dividing a length by a length is the part that used to be impossible here.
+// It is not any more: current Chrome computes calc(100cqw / 640px) to a plain
+// number, so the fit is one continuous expression instead of a ladder of media
+// queries. Measured in Chrome 151: a 400px container gives exactly 0.625.
+const PAD_WIDE = '1.6rem', PAD_NARROW = '.6rem';
+const FIT = `clamp(.25, calc(100cqw / ${W}px), 1)`;
 // SUB = 1, so a wall face is ONE 64 px plane. There used to be two reasons to
 // subdivide it, and neither survives here:
 //   1. No near clipping — in this port COLLISION replaces it: the player's
@@ -1897,7 +1914,18 @@ function screensCss() {
 .ec { width:${ekx(16)};
       background-position:calc(var(--g) * ${ekx(-16)}) ${eky(-EK.digits.y)} }
 
-.gameScreen { position:relative; width:${W}px }
+/* --- FITTING THE SCREEN TO THE PAGE. The screen keeps its native 640x480 and
+   is scaled with a TRANSFORM, never resized, for the same reason the maximise
+   button does it that way: the engine is calibrated in pixels and a transform
+   leaves layout — and therefore the stick's scroll calibration — untouched.
+
+   A transform does not shrink the layout box, though, so the wrapper reserves
+   the right space itself — the same factor, applied to a height rather than a
+   ratio. Without it a scaled-down screen trails the rest of its 480 pixels as
+   empty page below. */
+.hudRead { width:100%; max-width:${W}px; height:calc(${GAME_H}px * ${FIT}) }
+.gameScreen { position:relative; width:${W}px; height:${GAME_H}px;
+              transform-origin:0 0; scale:${FIT} }
 
 /* --- the start screen: PC-13, then the title, both on black as in the original */
 .intro { position:absolute; inset:0; z-index:10; background:#000; overflow:hidden }
@@ -2329,7 +2357,11 @@ function probesHtml(body) {
 // ============================================================ the page
 const COMMON_CSS = `:root { --bg:#0d0f13; --fg:#e9e7e0; --dim:#7f8189; --edge:#23272e }
 * { box-sizing:border-box }
-body { margin:0; padding:1.6rem; background:var(--bg); color:var(--fg);
+html { -webkit-text-size-adjust:100% }
+/* A size container on <body> so the screen can measure the width it really has.
+   Everything the game counts lives inside it, so the style containment that
+   comes with container-type crosses no counter scope. */
+body { container:page / inline-size; margin:0; padding:${PAD_WIDE}; background:var(--bg); color:var(--fg);
        font:15px/1.6 ui-sans-serif, system-ui, sans-serif }
 h1 { font-size:1.3rem; margin:0 0 .3rem }
 .lead { color:var(--dim); max-width:62rem; margin:0 0 1.1rem; font-size:.9rem }
@@ -2404,6 +2436,16 @@ const debugCss = () => `
 @media (max-width: 78rem) { .diffs ul { columns:2 } }
 .diffs b { color:var(--fg); font-weight:600 }
 @media (max-width: 52rem) { .diffs ul { columns:1 } }
+/* The list is a real <details>, but only on a narrow screen. Thirteen bullets
+   in one column push the game 1158px down a 390px-wide page — a screen and a
+   half of scrolling before you can play — so on a phone it starts collapsed
+   and is one tap away. From 40rem up it is forced open and the marker and the
+   toggle are taken away, so it reads as a plain block above the game. */
+@media (min-width: 40rem) {
+  .diffs::details-content { content-visibility:visible }
+  .diffs summary { list-style:none; pointer-events:none }
+  .diffs summary::-webkit-details-marker { display:none }
+}
 .controls { max-width:48rem; margin:0 0 .55rem; padding:.55rem .75rem;
               border:1px solid var(--edge); border-radius:8px; background:#0f131a;
               font-size:.88rem; color:var(--dim); line-height:1.55 }
@@ -2412,11 +2454,10 @@ const debugCss = () => `
    and this page has none. What a checkbox can do is lift the game out of the
    flow, pin it to the viewport and blow it up.
 
-   THE FACTOR HAS TO COME IN DISCRETE STEPS. CSS cannot divide a length by a
-   length — calc(100vw / 640) is invalid and dropped in silence — so there is no
-   way to compute "as large as fits". A ladder of media queries, one per quarter
-   step, is the honest substitute: each rung asks for a viewport big enough to
-   hold the game at that factor, and the last matching rung wins.
+   The factor is exact rather than stepped: current Chrome CAN divide a length
+   by a length inside calc(), so "the largest that fits" is one expression — the
+   smaller of the two axes' ratios. dvh rather than vh, so the game is not left
+   half-hidden behind a phone browser's retracting toolbar.
 
    Scaling with a TRANSFORM, not by resizing: the whole engine is calibrated in
    pixels (perspective 437.5px, every plane placed by translate), and the stick's
@@ -2433,14 +2474,29 @@ const debugCss = () => `
           background:#0d0f13cc; color:#8a9098; cursor:pointer; user-select:none;
           font:12px ui-monospace, Menlo, monospace }
 .maxOut:hover { color:var(--fg); border-color:#6fd6c6 }
-body:has(#big:checked) { overflow:hidden }
+/* Maximise pins the screen to the viewport, and a size container is a
+   containing block for fixed descendants — so it has to go while that lasts. */
+body:has(#big:checked) { overflow:hidden; container-type:normal }
 body:has(#big:checked) .maxOut { display:block }
 /* The letterbox. A pseudo-element rather than a div, so the markup does not
    grow for something only one state ever shows. */
 body:has(#big:checked)::before { content:''; position:fixed; inset:0;
                                  background:#000; z-index:19 }
 body:has(#big:checked) .gameScreen { position:fixed; left:50%; top:50%; z-index:20;
-                                     translate:-50% -50%; scale:var(--zoom, 1) }
+                                     transform-origin:50% 50%; translate:-50% -50%;
+                                     scale:min(calc(100vw / ${W}px),
+                                               calc(100dvh / ${GAME_H}px)) }
+
+/* --- NARROW SCREENS. The page around the game gets out of the way, and the
+   screen's own factor follows the smaller padding so the two stay in step. */
+@media (max-width: 40rem) {
+  body { padding:${PAD_NARROW} }
+  h1 { font-size:1.05rem }
+  .lead { font-size:.82rem; margin-bottom:.7rem }
+  .diffs, .controls { font-size:.78rem; padding:.4rem .55rem }
+  .diffs summary { font-size:.8rem }
+  .maxBtn { display:block; width:max-content; margin:.4rem 0 0 }
+}
 .toggle { margin:0 0 .6rem; font:12px ui-monospace, Menlo, monospace; color:var(--dim) }
 .toggle label { cursor:pointer; user-select:none }
 .toggle input { margin-right:.4rem; vertical-align:-1px }
@@ -2458,7 +2514,7 @@ body:has(#debug:checked) .stick { scrollbar-width:auto; scrollbar-color:#6fd6c6 
 // grę o zepsucie — pies, który nie gryzie, wróg, który nie goni, i klawiatura,
 // która nic nie robi. <details> zamiast skryptu, więc da się to zwinąć bez
 // ani jednej linijki JavaScriptu.
-const differencesHtml = () => `<details class="diffs" open>
+const differencesHtml = () => `<details class="diffs">
   <summary>How this differs from the original &mdash; and what does not work</summary>
   <ul>
     <li><b>Chrome or Edge, and a quick machine.</b> Every frame restyles about
@@ -2506,18 +2562,7 @@ const controlsHtml = () => `<p class="controls">
     } &mdash; the crosshair changes colour when there is something to use.` : ''}
 </p>`;
 
-// The zoom ladder. One rung per quarter step, each asking for a viewport that
-// can hold the whole 640x480 screen at that factor; later rules win, so the
-// largest one that fits is the one that applies.
-const ZOOM_STEPS = [1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.5, 4];
-const GAME_H = H * ASPECT + M.hud.bar.h * HUD_SY;
-// --zoom siedzi na :root BEZWARUNKOWO, a nie pod body:has(#big:checked).
-// Powód jest pomiarowy: selektor z :has() kosztował 95 mikrosekund na jedno
-// dopasowanie, a drabinka to dziesięć reguł. Zmienna sama z siebie niczego nie
-// robi — czyta ją wyłącznie reguła maksymalizacji, więc poza nią jest martwa.
-const zoomCss = () => ZOOM_STEPS.map(k =>
-  `@media (min-width: ${Math.ceil(W * k)}px) and (min-height: ${Math.ceil(GAME_H * k)}px)` +
-  ` { :root { --zoom: ${k} } }`).join('\n');
+
 
 const toggleHtml = () => `<p class="toggle"><label>` +
   `<input type="checkbox" id="debug" autocomplete="off">` +
@@ -2648,7 +2693,6 @@ ${DOORS ? doorsCss() : ''}
 ${ITEMS ? staticsCss() : ''}
 ${ITEMS || ENEMIES ? statusCss() + '\n' + hudCss() + '\n' + screensCss() : ''}
 ${debugCss()}
-${zoomCss()}
 ${ENEMIES ? enemiesCss() : ''}
 ${LIFT ? liftCss() : ''}
 ${SECRETS ? secretsCss() : ''}

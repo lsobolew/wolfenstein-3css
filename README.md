@@ -10,8 +10,9 @@ and the level-end screen are all computed by the CSS engine.
 
 Chrome or Edge. Scroll on the picture to move, click the crosshair to shoot and
 to open things, and hit **maximise** to fill the window (then F11 if you want
-the whole screen). See [Browser support](#browser-support) before you file a bug
-about Firefox.
+the whole screen). The screen scales to whatever width the page has, so it fits
+a phone as well as a desktop. See [Browser support](#browser-support) before you
+file a bug about Firefox.
 
 ---
 
@@ -61,7 +62,7 @@ measurements and the blind alleys, are in [`docs/`](#documentation).
 | Weapons | knife, pistol (24/70 s per shot), machine gun (18/70 s) — rates from `attackinfo[]` |
 | HUD | the real `STATUSBARPIC` from `VGAGRAPH`, with face, keys, weapon and latch digits |
 | Screens | title, PC-13, "Get Psyched!", death and the intermission — all original artwork |
-| Page weight | 78 KB HTML + 446 KB CSS + 249 KB images |
+| Page weight | 79 KB HTML + 448 KB CSS + 249 KB images |
 | Frame time | 16.7 ms median in Chrome while turning and walking at once |
 
 ## Limitations

@@ -65,21 +65,80 @@ container's computed style**, so a derived flag must be computed *on the element
 the query names* — which can force it up the tree or down it, depending on where
 its last input becomes available.
 
-### CSS cannot divide a length by a length
+### Dividing a length by a length: no longer true
 
-`calc(100vw / 640)` is invalid and dropped in silence, and it reads exactly like
-a media query that is not matching. There is therefore no way to compute "scale
-this fixed-size stage to fit the viewport". The maximise button uses the only
-substitute available: a ladder of media queries, one rung per quarter step, each
-asking for a viewport large enough to hold the 640x480 screen at that factor.
-The last matching rung wins.
+This entry used to say it was impossible, and the maximise button was built
+around that: a ladder of media queries, one rung per quarter step, each asking
+for a viewport large enough to hold the 640x480 screen at that factor.
 
-The scaling itself is a **transform**, not a resize, and that is deliberate. The
-whole engine is calibrated in pixels — the projection distance, every plane's
+It is not impossible in current Chrome. `calc()` produces a plain number from
+length over length, so "the largest factor that fits" is one expression.
+Measured in Chrome 151, a 400px container:
+
+| expression | computed |
+| --- | --- |
+| `calc(100cqw / 640px)` | `0.625` |
+| `tan(atan2(100cqw, 640px))` | `0.625` |
+| `clamp(0.2, calc(100cqw / 640px), 1)` | `0.625` |
+
+The `tan(atan2(...))` form is the old workaround — `atan2()` accepts two
+lengths and returns an angle, and `tan()` turns it back into a number. It gives
+the same answer, so the direct division is the one to write.
+
+The ladder is gone. The page now fits the screen to whatever width it has with
+`clamp(.25, calc(100cqw / 640px), 1)`, and maximise takes the smaller of the two
+axes: `min(calc(100vw / 640px), calc(100dvh / 480px))`.
+
+**Read the width as `cqw`, not `vw`.** `100vw` includes the scrollbar. On a
+platform with classic scrollbars that is fifteen pixels the game does not have,
+which is enough to push a horizontal scrollbar onto a narrow window — measured:
+5px of overflow at a 591px viewport. A size container on `<body>` gives the
+content box instead, and the fit becomes exact: game 571.8x428.9, wrapper
+571.8x428.9, horizontal overflow 0.
+
+That container has one cost. `container-type` implies `contain: layout`, which
+makes the element a containing block for fixed-position descendants — and
+maximise pins the screen to the viewport with `position: fixed`. So the
+container is dropped for exactly as long as that lasts:
+
+```css
+body { container: page / inline-size }
+body:has(#big:checked) { container-type: normal }
+```
+
+The style containment that comes with it crosses no counter scope, because
+every counter the game keeps is created and read inside `<body>`. Verified on
+the scaled page: the status bar still reads FLOOR 1, SCORE 0, LIVES 3,
+HEALTH 100%, AMMO 8.
+
+### Scaling is a transform, and the layout box has to be reserved separately
+
+The scaling is a **transform**, not a resize, and that is deliberate. The whole
+engine is calibrated in pixels — the projection distance, every plane's
 position, and the stick's scroll ranges — and a transform leaves layout
 untouched. Measured with the game at 1.75x: `scrollWidth` 1400 and `clientWidth`
 636, identical to the unscaled page, and `elementFromPoint` at the visual
-crosshair still returns the right label.
+crosshair still returns the right label. The same two numbers came back from the
+scaled-down page, 1400 and 636.
+
+The corollary is that a transform does **not** shrink the layout box, so a
+screen scaled to 0.58 would trail the other 42% of its 480 pixels as empty page
+below it. The wrapper reserves the right space itself, from the same factor:
+
+```css
+.hudRead    { width:100%; max-width:640px; height:calc(480px * var(--fit)) }
+.gameScreen { width:640px; height:480px; transform-origin:0 0; scale:var(--fit) }
+```
+
+`aspect-ratio: 640 / 480` on the wrapper looks like the tidier way to write that
+and does not work: the box came back 571.8 wide and 480 tall, the ratio ignored,
+because the unscaled 480px content sets the height. The explicit height does not
+have that problem.
+
+Hit-testing survives the transform intact. Measured on nine labels inside the
+frame, at scale 1 and at scale 0.6 in the same game state: the same nine
+elements, and `elementFromPoint` at each of their centres returned the same
+element in both.
 
 ### `scrollbar-color` disables every `::-webkit-scrollbar` rule
 

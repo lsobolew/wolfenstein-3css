@@ -177,6 +177,40 @@ input — remaining ammunition — first exists. The rule to apply is not "put s
 high" or "put state low" but *put it on the element the query names*, and let
 the last-available input decide which element that can be.
 
+## Fitting a fixed-size stage to a fluid page
+
+A game calibrated in pixels cannot be made fluid, but it can be **scaled**, and
+a transform is the way to do it: layout is untouched, so every pixel constant —
+the projection distance, the plane positions, the scroll ranges the controls are
+measured in — keeps the value it was calibrated with.
+
+The factor is one expression, because `calc()` divides a length by a length:
+
+```css
+/* FIT = clamp(.25, calc(100cqw / 640px), 1), written by the generator */
+body     { container: page / inline-size }
+.wrapper { width:100%; max-width:640px; height:calc(480px * FIT) }
+.stage   { width:640px; height:480px; transform-origin:0 0; scale:FIT }
+```
+
+The factor is repeated rather than held in a custom property, and the reason is
+`cqw`: a container does not query itself, so `--fit` declared on `:root` or on
+`body` would resolve against the viewport instead of the container. It has to be
+written on a descendant, and repeating it from one constant in the generator is
+simpler than registering a property to inherit it.
+
+Four things are load-bearing:
+
+- **`cqw`, not `vw`.** `100vw` includes the scrollbar, and those fifteen pixels
+  become a horizontal scrollbar on a narrow window.
+- **The wrapper reserves the space.** A transform does not shrink the layout
+  box, so without a height derived from the same factor a scaled-down stage
+  trails the rest of its full height as empty page. `aspect-ratio` does not
+  substitute — the unscaled content sets the height and the ratio is ignored.
+- **Drop the container before anything goes `position: fixed`.** `container-type`
+  implies `contain: layout`, which makes the element a containing block for
+  fixed descendants. `body:has(#big:checked) { container-type: normal }`.
+
 ## Legality is visibility
 
 Never validate and reject. Make the illegal action non-existent — there is
