@@ -1,0 +1,15 @@
+{
+  "name": "wolfenstein-3css",
+  "version": "1.0.0",
+  "description": "Wolfenstein 3D E1M1 rendered by a browser's CSS engine — no JavaScript on the page",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "extract": "node build/extract.mjs",
+    "pages": "node build/generate.mjs",
+    "build": "npm run extract && npm run pages",
+    "check": "node build/check.mjs"
+  }
+}

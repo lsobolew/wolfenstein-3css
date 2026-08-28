@@ -1,0 +1,1296 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wolfenstein 3D E1M1 in pure CSS</title>
+<link rel="stylesheet" href="index.css">
+
+<h1>Wolfenstein 3D &mdash; E1M1 in pure HTML and CSS</h1>
+<p class="lead">The first level of Wolfenstein 3D, played in a browser with <b>no
+    JavaScript on the page</b> &mdash; the walking, the collision, the doors,
+    the enemies and the shooting are all computed by the CSS engine. Geometry
+    and artwork come from the original game data. How it is done, with the
+    measurements and the dead ends, is in the
+    <a href="https://github.com/lsobolew/wolfenstein-3css#readme">project documentation</a>.</p>
+
+<details class="diffs" open>
+  <summary>How this differs from the original &mdash; and what does not work</summary>
+  <ul>
+    <li><b>Chrome or Edge, and a quick machine.</b> Every frame restyles about
+      thirteen hundred elements with no game loop to skip work, so a slow CPU
+      shows up as stutter. Safari cannot walk backwards; Firefox cannot run it.</li>
+    <li><b>Enemies never walk.</b> They stand where the map put them, turn, wake
+      and shoot. Chasing needs memory per actor, and CSS cannot write anything
+      down.</li>
+    <li><b>Dogs do not attack.</b> They wake and turn towards you, and that is
+      all.</li>
+    <li><b>You survive far longer than in the original.</b> Damage arrives at a
+      steady 0.6 points a second instead of in random hits, so a guard needs
+      about three minutes to finish you. Scroll-aiming is harder than a mouse
+      and the port has rough edges, so the difficulty is turned down on
+      purpose.</li>
+    <li><b>No keyboard.</b> CSS cannot see a key: scroll to move, click the
+      crosshair to act.</li>
+    <li><b>No strafing, no sliding along walls.</b> A blocked direction is
+      blocked completely.</li>
+    <li><b>Nothing is random.</b> Damage rolls became a fixed number of clicks
+      by range: one close, two medium, three far.</li>
+    <li><b>An open door still blocks an enemy's sight</b> &mdash; and their
+      bullets.</li>
+    <li><b>The machine gun costs no more ammunition than the pistol</b>, though
+      a burst should be three rounds.</li>
+    <li><b>Death is final and the lift leads nowhere.</b> One level, and
+      reloading is the only restart.</li>
+    <li><b>No sound, saving, difficulty levels or extra lives.</b></li>
+    <li><b>Smaller things:</b> the end-screen bonus never reaches the score,
+      there is no fizzle fade, and the key slots stay empty &mdash; E1M1 has no
+      keys.</li>
+    <li><b>There are bugs.</b> Something will misbehave sooner or later.</li>
+  </ul>
+</details>
+<p class="controls">
+  <b>Controls:</b> <b>scroll on the picture</b> with a wheel or a trackpad
+  &mdash; vertically you walk forwards and backwards, horizontally you turn.
+  <b>Click the crosshair</b> to shoot and open doors, secret walls and the lift &mdash; the crosshair changes colour when there is something to use.
+</p>
+<p class="toggle"><label><input type="checkbox" id="debug" autocomplete="off">debug overlays (not in the game: minimap, crosshair outline, scrollbars, statistics)</label><label class="maxBtn"><input type="checkbox" id="big" autocomplete="off">&#9974; maximise</label></p><label class="maxOut" for="big">&times; exit &mdash; F11 for real fullscreen</label>
+<div class="game">
+<input class="boxesD" type="checkbox" id="play" autocomplete="off">
+<input class="boxesD" type="radio" name="dr0" id="dr00" checked autocomplete="off"><input class="boxesD" type="radio" name="dr0" id="dr0a" autocomplete="off"><input class="boxesD" type="radio" name="dr0" id="dr0b" autocomplete="off">
+<input class="boxesD" type="radio" name="dr1" id="dr10" checked autocomplete="off"><input class="boxesD" type="radio" name="dr1" id="dr1a" autocomplete="off"><input class="boxesD" type="radio" name="dr1" id="dr1b" autocomplete="off">
+<input class="boxesD" type="radio" name="dr2" id="dr20" checked autocomplete="off"><input class="boxesD" type="radio" name="dr2" id="dr2a" autocomplete="off"><input class="boxesD" type="radio" name="dr2" id="dr2b" autocomplete="off">
+<input class="boxesD" type="radio" name="dr3" id="dr30" checked autocomplete="off"><input class="boxesD" type="radio" name="dr3" id="dr3a" autocomplete="off"><input class="boxesD" type="radio" name="dr3" id="dr3b" autocomplete="off">
+<input class="boxesD" type="radio" name="dr4" id="dr40" checked autocomplete="off"><input class="boxesD" type="radio" name="dr4" id="dr4a" autocomplete="off"><input class="boxesD" type="radio" name="dr4" id="dr4b" autocomplete="off">
+<input class="boxesD" type="radio" name="dr5" id="dr50" checked autocomplete="off"><input class="boxesD" type="radio" name="dr5" id="dr5a" autocomplete="off"><input class="boxesD" type="radio" name="dr5" id="dr5b" autocomplete="off">
+<input class="boxesD" type="radio" name="dr6" id="dr60" checked autocomplete="off"><input class="boxesD" type="radio" name="dr6" id="dr6a" autocomplete="off"><input class="boxesD" type="radio" name="dr6" id="dr6b" autocomplete="off">
+<input class="boxesD" type="radio" name="dr7" id="dr70" checked autocomplete="off"><input class="boxesD" type="radio" name="dr7" id="dr7a" autocomplete="off"><input class="boxesD" type="radio" name="dr7" id="dr7b" autocomplete="off">
+<input class="boxesD" type="radio" name="dr8" id="dr80" checked autocomplete="off"><input class="boxesD" type="radio" name="dr8" id="dr8a" autocomplete="off"><input class="boxesD" type="radio" name="dr8" id="dr8b" autocomplete="off">
+<input class="boxesD" type="radio" name="dr9" id="dr90" checked autocomplete="off"><input class="boxesD" type="radio" name="dr9" id="dr9a" autocomplete="off"><input class="boxesD" type="radio" name="dr9" id="dr9b" autocomplete="off">
+<input class="boxesD" type="radio" name="dr10" id="dr100" checked autocomplete="off"><input class="boxesD" type="radio" name="dr10" id="dr10a" autocomplete="off"><input class="boxesD" type="radio" name="dr10" id="dr10b" autocomplete="off">
+<input class="boxesD" type="radio" name="dr11" id="dr110" checked autocomplete="off"><input class="boxesD" type="radio" name="dr11" id="dr11a" autocomplete="off"><input class="boxesD" type="radio" name="dr11" id="dr11b" autocomplete="off">
+<input class="boxesD" type="radio" name="dr12" id="dr120" checked autocomplete="off"><input class="boxesD" type="radio" name="dr12" id="dr12a" autocomplete="off"><input class="boxesD" type="radio" name="dr12" id="dr12b" autocomplete="off">
+<input class="boxesD" type="radio" name="dr13" id="dr130" checked autocomplete="off"><input class="boxesD" type="radio" name="dr13" id="dr13a" autocomplete="off"><input class="boxesD" type="radio" name="dr13" id="dr13b" autocomplete="off">
+<input class="boxesD" type="radio" name="dr14" id="dr140" checked autocomplete="off"><input class="boxesD" type="radio" name="dr14" id="dr14a" autocomplete="off"><input class="boxesD" type="radio" name="dr14" id="dr14b" autocomplete="off">
+<input class="boxesD" type="radio" name="dr15" id="dr150" checked autocomplete="off"><input class="boxesD" type="radio" name="dr15" id="dr15a" autocomplete="off"><input class="boxesD" type="radio" name="dr15" id="dr15b" autocomplete="off">
+<input class="boxesD" type="radio" name="dr16" id="dr160" checked autocomplete="off"><input class="boxesD" type="radio" name="dr16" id="dr16a" autocomplete="off"><input class="boxesD" type="radio" name="dr16" id="dr16b" autocomplete="off">
+<input class="boxesD" type="radio" name="dr17" id="dr170" checked autocomplete="off"><input class="boxesD" type="radio" name="dr17" id="dr17a" autocomplete="off"><input class="boxesD" type="radio" name="dr17" id="dr17b" autocomplete="off">
+<input class="boxesD" type="radio" name="dr18" id="dr180" checked autocomplete="off"><input class="boxesD" type="radio" name="dr18" id="dr18a" autocomplete="off"><input class="boxesD" type="radio" name="dr18" id="dr18b" autocomplete="off">
+<input class="boxesD" type="radio" name="dr19" id="dr190" checked autocomplete="off"><input class="boxesD" type="radio" name="dr19" id="dr19a" autocomplete="off"><input class="boxesD" type="radio" name="dr19" id="dr19b" autocomplete="off">
+<input class="boxesD" type="radio" name="dr20" id="dr200" checked autocomplete="off"><input class="boxesD" type="radio" name="dr20" id="dr20a" autocomplete="off"><input class="boxesD" type="radio" name="dr20" id="dr20b" autocomplete="off">
+<input class="boxesD" type="radio" name="dr21" id="dr210" checked autocomplete="off"><input class="boxesD" type="radio" name="dr21" id="dr21a" autocomplete="off"><input class="boxesD" type="radio" name="dr21" id="dr21b" autocomplete="off">
+<input class="boxesW" type="checkbox" id="c01" autocomplete="off"><input class="boxesW" type="checkbox" id="c02" autocomplete="off"><input class="boxesW" type="checkbox" id="c0d" autocomplete="off"><input class="boxesW" type="checkbox" id="k01" autocomplete="off"><input class="boxesW" type="checkbox" id="k02" autocomplete="off"><input class="boxesW" type="checkbox" id="k0d" autocomplete="off"><input class="boxesW" type="checkbox" id="c11" autocomplete="off"><input class="boxesW" type="checkbox" id="c12" autocomplete="off"><input class="boxesW" type="checkbox" id="c1d" autocomplete="off"><input class="boxesW" type="checkbox" id="k11" autocomplete="off"><input class="boxesW" type="checkbox" id="k12" autocomplete="off"><input class="boxesW" type="checkbox" id="k1d" autocomplete="off"><input class="boxesW" type="checkbox" id="c21" autocomplete="off"><input class="boxesW" type="checkbox" id="c22" autocomplete="off"><input class="boxesW" type="checkbox" id="c2d" autocomplete="off"><input class="boxesW" type="checkbox" id="k21" autocomplete="off"><input class="boxesW" type="checkbox" id="k22" autocomplete="off"><input class="boxesW" type="checkbox" id="k2d" autocomplete="off"><input class="boxesW" type="checkbox" id="c31" autocomplete="off"><input class="boxesW" type="checkbox" id="c32" autocomplete="off"><input class="boxesW" type="checkbox" id="c3d" autocomplete="off"><input class="boxesW" type="checkbox" id="k31" autocomplete="off"><input class="boxesW" type="checkbox" id="k32" autocomplete="off"><input class="boxesW" type="checkbox" id="k3d" autocomplete="off"><input class="boxesW" type="checkbox" id="c41" autocomplete="off"><input class="boxesW" type="checkbox" id="c42" autocomplete="off"><input class="boxesW" type="checkbox" id="c4d" autocomplete="off"><input class="boxesW" type="checkbox" id="k41" autocomplete="off"><input class="boxesW" type="checkbox" id="k42" autocomplete="off"><input class="boxesW" type="checkbox" id="k4d" autocomplete="off"><input class="boxesW" type="checkbox" id="c51" autocomplete="off"><input class="boxesW" type="checkbox" id="c52" autocomplete="off"><input class="boxesW" type="checkbox" id="c5d" autocomplete="off"><input class="boxesW" type="checkbox" id="k51" autocomplete="off"><input class="boxesW" type="checkbox" id="k52" autocomplete="off"><input class="boxesW" type="checkbox" id="k5d" autocomplete="off"><input class="boxesW" type="checkbox" id="c61" autocomplete="off"><input class="boxesW" type="checkbox" id="c62" autocomplete="off"><input class="boxesW" type="checkbox" id="c6d" autocomplete="off"><input class="boxesW" type="checkbox" id="k61" autocomplete="off"><input class="boxesW" type="checkbox" id="k62" autocomplete="off"><input class="boxesW" type="checkbox" id="k6d" autocomplete="off"><input class="boxesW" type="checkbox" id="c71" autocomplete="off"><input class="boxesW" type="checkbox" id="c72" autocomplete="off"><input class="boxesW" type="checkbox" id="c7d" autocomplete="off"><input class="boxesW" type="checkbox" id="k71" autocomplete="off"><input class="boxesW" type="checkbox" id="k72" autocomplete="off"><input class="boxesW" type="checkbox" id="k7d" autocomplete="off"><input class="boxesW" type="checkbox" id="c81" autocomplete="off"><input class="boxesW" type="checkbox" id="c82" autocomplete="off"><input class="boxesW" type="checkbox" id="c8d" autocomplete="off"><input class="boxesW" type="checkbox" id="k81" autocomplete="off"><input class="boxesW" type="checkbox" id="k82" autocomplete="off"><input class="boxesW" type="checkbox" id="k8d" autocomplete="off"><input class="boxesW" type="checkbox" id="c91" autocomplete="off"><input class="boxesW" type="checkbox" id="c92" autocomplete="off"><input class="boxesW" type="checkbox" id="c9d" autocomplete="off"><input class="boxesW" type="checkbox" id="k91" autocomplete="off"><input class="boxesW" type="checkbox" id="k92" autocomplete="off"><input class="boxesW" type="checkbox" id="k9d" autocomplete="off"><input class="boxesW" type="checkbox" id="c101" autocomplete="off"><input class="boxesW" type="checkbox" id="c102" autocomplete="off"><input class="boxesW" type="checkbox" id="c10d" autocomplete="off"><input class="boxesW" type="checkbox" id="k101" autocomplete="off"><input class="boxesW" type="checkbox" id="k102" autocomplete="off"><input class="boxesW" type="checkbox" id="k10d" autocomplete="off"><input class="boxesW" type="checkbox" id="c111" autocomplete="off"><input class="boxesW" type="checkbox" id="c112" autocomplete="off"><input class="boxesW" type="checkbox" id="c11d" autocomplete="off"><input class="boxesW" type="checkbox" id="k111" autocomplete="off"><input class="boxesW" type="checkbox" id="k112" autocomplete="off"><input class="boxesW" type="checkbox" id="k11d" autocomplete="off"><input class="boxesW" type="checkbox" id="c121" autocomplete="off"><input class="boxesW" type="checkbox" id="c122" autocomplete="off"><input class="boxesW" type="checkbox" id="c12d" autocomplete="off"><input class="boxesW" type="checkbox" id="k121" autocomplete="off"><input class="boxesW" type="checkbox" id="k122" autocomplete="off"><input class="boxesW" type="checkbox" id="k12d" autocomplete="off"><input class="boxesW" type="checkbox" id="c131" autocomplete="off"><input class="boxesW" type="checkbox" id="c132" autocomplete="off"><input class="boxesW" type="checkbox" id="c13d" autocomplete="off"><input class="boxesW" type="checkbox" id="k131" autocomplete="off"><input class="boxesW" type="checkbox" id="k132" autocomplete="off"><input class="boxesW" type="checkbox" id="k13d" autocomplete="off"><input class="boxesW" type="checkbox" id="c141" autocomplete="off"><input class="boxesW" type="checkbox" id="c142" autocomplete="off"><input class="boxesW" type="checkbox" id="c14d" autocomplete="off"><input class="boxesW" type="checkbox" id="k141" autocomplete="off"><input class="boxesW" type="checkbox" id="k142" autocomplete="off"><input class="boxesW" type="checkbox" id="k14d" autocomplete="off"><input class="boxesW" type="checkbox" id="c151" autocomplete="off"><input class="boxesW" type="checkbox" id="c152" autocomplete="off"><input class="boxesW" type="checkbox" id="c15d" autocomplete="off"><input class="boxesW" type="checkbox" id="k151" autocomplete="off"><input class="boxesW" type="checkbox" id="k152" autocomplete="off"><input class="boxesW" type="checkbox" id="k15d" autocomplete="off"><input class="boxesW" type="checkbox" id="c161" autocomplete="off"><input class="boxesW" type="checkbox" id="c162" autocomplete="off"><input class="boxesW" type="checkbox" id="c16d" autocomplete="off"><input class="boxesW" type="checkbox" id="k161" autocomplete="off"><input class="boxesW" type="checkbox" id="k162" autocomplete="off"><input class="boxesW" type="checkbox" id="k16d" autocomplete="off"><input class="boxesW" type="checkbox" id="c171" autocomplete="off"><input class="boxesW" type="checkbox" id="c172" autocomplete="off"><input class="boxesW" type="checkbox" id="c17d" autocomplete="off"><input class="boxesW" type="checkbox" id="k171" autocomplete="off"><input class="boxesW" type="checkbox" id="k172" autocomplete="off"><input class="boxesW" type="checkbox" id="k17d" autocomplete="off"><input class="boxesW" type="checkbox" id="c181" autocomplete="off"><input class="boxesW" type="checkbox" id="c182" autocomplete="off"><input class="boxesW" type="checkbox" id="c18d" autocomplete="off"><input class="boxesW" type="checkbox" id="k181" autocomplete="off"><input class="boxesW" type="checkbox" id="k182" autocomplete="off"><input class="boxesW" type="checkbox" id="k18d" autocomplete="off"><input class="boxesW" type="checkbox" id="z19" autocomplete="off"><input class="boxesW" type="checkbox" id="kz19" autocomplete="off"><input class="boxesW" type="checkbox" id="z20" autocomplete="off"><input class="boxesW" type="checkbox" id="kz20" autocomplete="off"><input class="boxesW" type="checkbox" id="c211" autocomplete="off"><input class="boxesW" type="checkbox" id="c212" autocomplete="off"><input class="boxesW" type="checkbox" id="c21d" autocomplete="off"><input class="boxesW" type="checkbox" id="k211" autocomplete="off"><input class="boxesW" type="checkbox" id="k212" autocomplete="off"><input class="boxesW" type="checkbox" id="k21d" autocomplete="off"><input class="boxesW" type="checkbox" id="c221" autocomplete="off"><input class="boxesW" type="checkbox" id="c222" autocomplete="off"><input class="boxesW" type="checkbox" id="c22d" autocomplete="off"><input class="boxesW" type="checkbox" id="k221" autocomplete="off"><input class="boxesW" type="checkbox" id="k222" autocomplete="off"><input class="boxesW" type="checkbox" id="k22d" autocomplete="off"><input class="boxesW" type="checkbox" id="c231" autocomplete="off"><input class="boxesW" type="checkbox" id="c232" autocomplete="off"><input class="boxesW" type="checkbox" id="c23d" autocomplete="off"><input class="boxesW" type="checkbox" id="k231" autocomplete="off"><input class="boxesW" type="checkbox" id="k232" autocomplete="off"><input class="boxesW" type="checkbox" id="k23d" autocomplete="off"><input class="boxesW" type="checkbox" id="c241" autocomplete="off"><input class="boxesW" type="checkbox" id="c242" autocomplete="off"><input class="boxesW" type="checkbox" id="c24d" autocomplete="off"><input class="boxesW" type="checkbox" id="k241" autocomplete="off"><input class="boxesW" type="checkbox" id="k242" autocomplete="off"><input class="boxesW" type="checkbox" id="k24d" autocomplete="off"><input class="boxesW" type="checkbox" id="z25" autocomplete="off"><input class="boxesW" type="checkbox" id="kz25" autocomplete="off"><input class="boxesW" type="checkbox" id="z26" autocomplete="off"><input class="boxesW" type="checkbox" id="kz26" autocomplete="off"><input class="boxesW" type="checkbox" id="c271" autocomplete="off"><input class="boxesW" type="checkbox" id="c272" autocomplete="off"><input class="boxesW" type="checkbox" id="c27d" autocomplete="off"><input class="boxesW" type="checkbox" id="k271" autocomplete="off"><input class="boxesW" type="checkbox" id="k272" autocomplete="off"><input class="boxesW" type="checkbox" id="k27d" autocomplete="off"><input class="boxesW" type="checkbox" id="c281" autocomplete="off"><input class="boxesW" type="checkbox" id="c282" autocomplete="off"><input class="boxesW" type="checkbox" id="c28d" autocomplete="off"><input class="boxesW" type="checkbox" id="k281" autocomplete="off"><input class="boxesW" type="checkbox" id="k282" autocomplete="off"><input class="boxesW" type="checkbox" id="k28d" autocomplete="off"><input class="boxesW" type="checkbox" id="c291" autocomplete="off"><input class="boxesW" type="checkbox" id="c292" autocomplete="off"><input class="boxesW" type="checkbox" id="c29d" autocomplete="off"><input class="boxesW" type="checkbox" id="k291" autocomplete="off"><input class="boxesW" type="checkbox" id="k292" autocomplete="off"><input class="boxesW" type="checkbox" id="k29d" autocomplete="off"><input class="boxesW" type="checkbox" id="c301" autocomplete="off"><input class="boxesW" type="checkbox" id="c302" autocomplete="off"><input class="boxesW" type="checkbox" id="c30d" autocomplete="off"><input class="boxesW" type="checkbox" id="k301" autocomplete="off"><input class="boxesW" type="checkbox" id="k302" autocomplete="off"><input class="boxesW" type="checkbox" id="k30d" autocomplete="off"><input class="boxesW" type="checkbox" id="z31" autocomplete="off"><input class="boxesW" type="checkbox" id="kz31" autocomplete="off"><input class="boxesW" type="checkbox" id="c321" autocomplete="off"><input class="boxesW" type="checkbox" id="c322" autocomplete="off"><input class="boxesW" type="checkbox" id="c32d" autocomplete="off"><input class="boxesW" type="checkbox" id="k321" autocomplete="off"><input class="boxesW" type="checkbox" id="k322" autocomplete="off"><input class="boxesW" type="checkbox" id="k32d" autocomplete="off"><input class="boxesW" type="checkbox" id="c331" autocomplete="off"><input class="boxesW" type="checkbox" id="c332" autocomplete="off"><input class="boxesW" type="checkbox" id="c33d" autocomplete="off"><input class="boxesW" type="checkbox" id="k331" autocomplete="off"><input class="boxesW" type="checkbox" id="k332" autocomplete="off"><input class="boxesW" type="checkbox" id="k33d" autocomplete="off"><input class="boxesW" type="checkbox" id="c341" autocomplete="off"><input class="boxesW" type="checkbox" id="c342" autocomplete="off"><input class="boxesW" type="checkbox" id="c34d" autocomplete="off"><input class="boxesW" type="checkbox" id="k341" autocomplete="off"><input class="boxesW" type="checkbox" id="k342" autocomplete="off"><input class="boxesW" type="checkbox" id="k34d" autocomplete="off"><input class="boxesW" type="checkbox" id="c361" autocomplete="off"><input class="boxesW" type="checkbox" id="c362" autocomplete="off"><input class="boxesW" type="checkbox" id="c36d" autocomplete="off"><input class="boxesW" type="checkbox" id="k361" autocomplete="off"><input class="boxesW" type="checkbox" id="k362" autocomplete="off"><input class="boxesW" type="checkbox" id="k36d" autocomplete="off"><input class="boxesW" type="checkbox" id="c371" autocomplete="off"><input class="boxesW" type="checkbox" id="c372" autocomplete="off"><input class="boxesW" type="checkbox" id="c37d" autocomplete="off"><input class="boxesW" type="checkbox" id="k371" autocomplete="off"><input class="boxesW" type="checkbox" id="k372" autocomplete="off"><input class="boxesW" type="checkbox" id="k37d" autocomplete="off">
+<span class="abacus"><i class="lz0"></i><i class="lz1"></i><i class="lz2"></i><i class="lz3"></i><i class="lz4"></i><i class="lz5"></i><i class="lz6"></i><i class="lz7"></i><i class="lz8"></i><i class="lz9"></i><i class="lz10"></i><i class="lz11"></i><i class="lz12"></i><i class="lz13"></i><i class="lz14"></i><i class="lz15"></i><i class="lz16"></i><i class="lz17"></i><i class="lz18"></i><i class="lz19"></i><i class="lz20"></i><i class="lz21"></i><i class="lz22"></i><i class="lz23"></i><i class="lz24"></i><i class="lz25"></i><i class="lz26"></i><i class="lz27"></i><i class="lz28"></i><i class="lz29"></i><i class="lz30"></i><i class="lz31"></i><i class="lz32"></i><i class="lz33"></i><i class="lz34"></i><i class="lz36"></i><i class="lz37"></i></span>
+<input class="boxesD" type="checkbox" id="wi0" autocomplete="off"><input class="boxesD" type="checkbox" id="wi1" autocomplete="off">
+<input class="boxesD" type="checkbox" id="pw0" autocomplete="off"><input class="boxesD" type="checkbox" id="pw1" autocomplete="off"><input class="boxesD" type="checkbox" id="pw2" autocomplete="off"><input class="boxesD" type="checkbox" id="pw3" autocomplete="off"><input class="boxesD" type="checkbox" id="pw4" autocomplete="off">
+<div class="stateAnim"><div class="stateRead">
+<div class="rdx"><div class="rdy"><div class="rdb">
+<div class="turnP0"><div class="turnL0">
+<div class="turnP1"><div class="turnL1">
+<div class="turnP2"><div class="turnL2">
+<div class="turnP3"><div class="turnL3">
+<div class="heading">
+<div class="ak f0_0">
+<div class="ak f0_1">
+<div class="ak b0">
+<div class="ak f1_0">
+<div class="ak f1_1">
+<div class="ak b1">
+<div class="ak f2_0">
+<div class="ak f2_1">
+<div class="ak b2">
+<div class="ak f3_0">
+<div class="ak f3_1">
+<div class="ak b3">
+<div class="ak f4_0">
+<div class="ak f4_1">
+<div class="ak b4">
+<div class="ak f5_0">
+<div class="ak f5_1">
+<div class="ak b5">
+<div class="ak f6_0">
+<div class="ak f6_1">
+<div class="ak b6">
+<div class="ak f7_0">
+<div class="ak f7_1">
+<div class="ak b7">
+<div class="ak f8_0">
+<div class="ak f8_1">
+<div class="ak b8">
+<div class="ak f9_0">
+<div class="ak f9_1">
+<div class="ak b9">
+<div class="ak f10_0">
+<div class="ak f10_1">
+<div class="ak b10">
+<div class="ak f11_0">
+<div class="ak f11_1">
+<div class="ak b11">
+<div class="ak f12_0">
+<div class="ak f12_1">
+<div class="ak b12">
+<div class="ak f13_0">
+<div class="ak f13_1">
+<div class="ak b13">
+<div class="ak f14_0">
+<div class="ak f14_1">
+<div class="ak b14">
+<div class="ak f15_0">
+<div class="ak f15_1">
+<div class="ak b15">
+<div class="sum">
+<div class="swf"><div class="swfw"><div class="swfb">
+<div class="sc0"><div class="sc0w"><div class="sc0b">
+<div class="sf0"><div class="sf0w"><div class="sf0b">
+<div class="sb0"><div class="sb0w"><div class="sb0b">
+<div class="sf1"><div class="sf1w"><div class="sf1b">
+<div class="sb1"><div class="sb1w"><div class="sb1b">
+<div class="sf2"><div class="sf2w"><div class="sf2b">
+<div class="sb2"><div class="sb2w"><div class="sb2b">
+<div class="mgLatch">
+<div class="probeOR">
+<div class="loot"><div class="spoils">
+<div class="waker"><div class="enemyFrames"><div class="blood">
+<div class="cooldown"><div class="cooldownRead">
+<div class="hudRead"><div class="gameScreen">
+<div class="frame">
+  <div class="screen">
+    <div class="world"><div class="eye"><div class="turn"><div class="position">
+    <div class="w w0"><label class="shot a1w a1w0" for="c01"></label><label class="shot a2w a2w0" for="c02"></label><label class="shot kw kw0" for="c0d"></label><label class="shot b1w b1w0" for="k01"></label><label class="shot b2w b2w0" for="k02"></label><label class="shot bkw bkw0" for="k0d"></label></div>
+    <div class="w w1"><label class="shot a1w a1w1" for="c11"></label><label class="shot a2w a2w1" for="c12"></label><label class="shot kw kw1" for="c1d"></label><label class="shot b1w b1w1" for="k11"></label><label class="shot b2w b2w1" for="k12"></label><label class="shot bkw bkw1" for="k1d"></label></div>
+    <div class="w w2"><label class="shot a1w a1w2" for="c21"></label><label class="shot a2w a2w2" for="c22"></label><label class="shot kw kw2" for="c2d"></label><label class="shot b1w b1w2" for="k21"></label><label class="shot b2w b2w2" for="k22"></label><label class="shot bkw bkw2" for="k2d"></label></div>
+    <div class="w w3"><label class="shot a1w a1w3" for="c31"></label><label class="shot a2w a2w3" for="c32"></label><label class="shot kw kw3" for="c3d"></label><label class="shot b1w b1w3" for="k31"></label><label class="shot b2w b2w3" for="k32"></label><label class="shot bkw bkw3" for="k3d"></label></div>
+    <div class="w w4"><label class="shot a1w a1w4" for="c41"></label><label class="shot a2w a2w4" for="c42"></label><label class="shot kw kw4" for="c4d"></label><label class="shot b1w b1w4" for="k41"></label><label class="shot b2w b2w4" for="k42"></label><label class="shot bkw bkw4" for="k4d"></label></div>
+    <div class="w w5"><label class="shot a1w a1w5" for="c51"></label><label class="shot a2w a2w5" for="c52"></label><label class="shot kw kw5" for="c5d"></label><label class="shot b1w b1w5" for="k51"></label><label class="shot b2w b2w5" for="k52"></label><label class="shot bkw bkw5" for="k5d"></label></div>
+    <div class="w w6"><label class="shot a1w a1w6" for="c61"></label><label class="shot a2w a2w6" for="c62"></label><label class="shot kw kw6" for="c6d"></label><label class="shot b1w b1w6" for="k61"></label><label class="shot b2w b2w6" for="k62"></label><label class="shot bkw bkw6" for="k6d"></label></div>
+    <div class="w w7"><label class="shot a1w a1w7" for="c71"></label><label class="shot a2w a2w7" for="c72"></label><label class="shot kw kw7" for="c7d"></label><label class="shot b1w b1w7" for="k71"></label><label class="shot b2w b2w7" for="k72"></label><label class="shot bkw bkw7" for="k7d"></label></div>
+    <div class="w w8"><label class="shot a1w a1w8" for="c81"></label><label class="shot a2w a2w8" for="c82"></label><label class="shot kw kw8" for="c8d"></label><label class="shot b1w b1w8" for="k81"></label><label class="shot b2w b2w8" for="k82"></label><label class="shot bkw bkw8" for="k8d"></label></div>
+    <div class="w w9"><label class="shot a1w a1w9" for="c91"></label><label class="shot a2w a2w9" for="c92"></label><label class="shot kw kw9" for="c9d"></label><label class="shot b1w b1w9" for="k91"></label><label class="shot b2w b2w9" for="k92"></label><label class="shot bkw bkw9" for="k9d"></label></div>
+    <div class="w w10"><label class="shot a1w a1w10" for="c101"></label><label class="shot a2w a2w10" for="c102"></label><label class="shot kw kw10" for="c10d"></label><label class="shot b1w b1w10" for="k101"></label><label class="shot b2w b2w10" for="k102"></label><label class="shot bkw bkw10" for="k10d"></label></div>
+    <div class="w w11"><label class="shot a1w a1w11" for="c111"></label><label class="shot a2w a2w11" for="c112"></label><label class="shot kw kw11" for="c11d"></label><label class="shot b1w b1w11" for="k111"></label><label class="shot b2w b2w11" for="k112"></label><label class="shot bkw bkw11" for="k11d"></label></div>
+    <div class="w w12"><label class="shot a1w a1w12" for="c121"></label><label class="shot a2w a2w12" for="c122"></label><label class="shot kw kw12" for="c12d"></label><label class="shot b1w b1w12" for="k121"></label><label class="shot b2w b2w12" for="k122"></label><label class="shot bkw bkw12" for="k12d"></label></div>
+    <div class="w w13"><label class="shot a1w a1w13" for="c131"></label><label class="shot a2w a2w13" for="c132"></label><label class="shot kw kw13" for="c13d"></label><label class="shot b1w b1w13" for="k131"></label><label class="shot b2w b2w13" for="k132"></label><label class="shot bkw bkw13" for="k13d"></label></div>
+    <div class="w w14"><label class="shot a1w a1w14" for="c141"></label><label class="shot a2w a2w14" for="c142"></label><label class="shot kw kw14" for="c14d"></label><label class="shot b1w b1w14" for="k141"></label><label class="shot b2w b2w14" for="k142"></label><label class="shot bkw bkw14" for="k14d"></label></div>
+    <div class="w w15"><label class="shot a1w a1w15" for="c151"></label><label class="shot a2w a2w15" for="c152"></label><label class="shot kw kw15" for="c15d"></label><label class="shot b1w b1w15" for="k151"></label><label class="shot b2w b2w15" for="k152"></label><label class="shot bkw bkw15" for="k15d"></label></div>
+    <div class="w w16"><label class="shot a1w a1w16" for="c161"></label><label class="shot a2w a2w16" for="c162"></label><label class="shot kw kw16" for="c16d"></label><label class="shot b1w b1w16" for="k161"></label><label class="shot b2w b2w16" for="k162"></label><label class="shot bkw bkw16" for="k16d"></label></div>
+    <div class="w w17"><label class="shot a1w a1w17" for="c171"></label><label class="shot a2w a2w17" for="c172"></label><label class="shot kw kw17" for="c17d"></label><label class="shot b1w b1w17" for="k171"></label><label class="shot b2w b2w17" for="k172"></label><label class="shot bkw bkw17" for="k17d"></label></div>
+    <div class="w w18"><label class="shot a1w a1w18" for="c181"></label><label class="shot a2w a2w18" for="c182"></label><label class="shot kw kw18" for="c18d"></label><label class="shot b1w b1w18" for="k181"></label><label class="shot b2w b2w18" for="k182"></label><label class="shot bkw bkw18" for="k18d"></label></div>
+    <div class="w w19"><label class="shot dw dw19" for="z19"></label><label class="shot dnw dnw19" for="kz19"></label></div>
+    <div class="w w20"><label class="shot dw dw20" for="z20"></label><label class="shot dnw dnw20" for="kz20"></label></div>
+    <div class="w w21"><label class="shot a1w a1w21" for="c211"></label><label class="shot a2w a2w21" for="c212"></label><label class="shot kw kw21" for="c21d"></label><label class="shot b1w b1w21" for="k211"></label><label class="shot b2w b2w21" for="k212"></label><label class="shot bkw bkw21" for="k21d"></label></div>
+    <div class="w w22"><label class="shot a1w a1w22" for="c221"></label><label class="shot a2w a2w22" for="c222"></label><label class="shot kw kw22" for="c22d"></label><label class="shot b1w b1w22" for="k221"></label><label class="shot b2w b2w22" for="k222"></label><label class="shot bkw bkw22" for="k22d"></label></div>
+    <div class="w w23"><label class="shot a1w a1w23" for="c231"></label><label class="shot a2w a2w23" for="c232"></label><label class="shot kw kw23" for="c23d"></label><label class="shot b1w b1w23" for="k231"></label><label class="shot b2w b2w23" for="k232"></label><label class="shot bkw bkw23" for="k23d"></label></div>
+    <div class="w w24"><label class="shot a1w a1w24" for="c241"></label><label class="shot a2w a2w24" for="c242"></label><label class="shot kw kw24" for="c24d"></label><label class="shot b1w b1w24" for="k241"></label><label class="shot b2w b2w24" for="k242"></label><label class="shot bkw bkw24" for="k24d"></label></div>
+    <div class="w w25"><label class="shot dw dw25" for="z25"></label><label class="shot dnw dnw25" for="kz25"></label></div>
+    <div class="w w26"><label class="shot dw dw26" for="z26"></label><label class="shot dnw dnw26" for="kz26"></label></div>
+    <div class="w w27"><label class="shot a1w a1w27" for="c271"></label><label class="shot a2w a2w27" for="c272"></label><label class="shot kw kw27" for="c27d"></label><label class="shot b1w b1w27" for="k271"></label><label class="shot b2w b2w27" for="k272"></label><label class="shot bkw bkw27" for="k27d"></label></div>
+    <div class="w w28"><label class="shot a1w a1w28" for="c281"></label><label class="shot a2w a2w28" for="c282"></label><label class="shot kw kw28" for="c28d"></label><label class="shot b1w b1w28" for="k281"></label><label class="shot b2w b2w28" for="k282"></label><label class="shot bkw bkw28" for="k28d"></label></div>
+    <div class="w w29"><label class="shot a1w a1w29" for="c291"></label><label class="shot a2w a2w29" for="c292"></label><label class="shot kw kw29" for="c29d"></label><label class="shot b1w b1w29" for="k291"></label><label class="shot b2w b2w29" for="k292"></label><label class="shot bkw bkw29" for="k29d"></label></div>
+    <div class="w w30"><label class="shot a1w a1w30" for="c301"></label><label class="shot a2w a2w30" for="c302"></label><label class="shot kw kw30" for="c30d"></label><label class="shot b1w b1w30" for="k301"></label><label class="shot b2w b2w30" for="k302"></label><label class="shot bkw bkw30" for="k30d"></label></div>
+    <div class="w w31"><label class="shot dw dw31" for="z31"></label><label class="shot dnw dnw31" for="kz31"></label></div>
+    <div class="w w32"><label class="shot a1w a1w32" for="c321"></label><label class="shot a2w a2w32" for="c322"></label><label class="shot kw kw32" for="c32d"></label><label class="shot b1w b1w32" for="k321"></label><label class="shot b2w b2w32" for="k322"></label><label class="shot bkw bkw32" for="k32d"></label></div>
+    <div class="w w33"><label class="shot a1w a1w33" for="c331"></label><label class="shot a2w a2w33" for="c332"></label><label class="shot kw kw33" for="c33d"></label><label class="shot b1w b1w33" for="k331"></label><label class="shot b2w b2w33" for="k332"></label><label class="shot bkw bkw33" for="k33d"></label></div>
+    <div class="w w34"><label class="shot a1w a1w34" for="c341"></label><label class="shot a2w a2w34" for="c342"></label><label class="shot kw kw34" for="c34d"></label><label class="shot b1w b1w34" for="k341"></label><label class="shot b2w b2w34" for="k342"></label><label class="shot bkw bkw34" for="k34d"></label></div>
+    <i class="w w35"></i>
+    <div class="w w36"><label class="shot a1w a1w36" for="c361"></label><label class="shot a2w a2w36" for="c362"></label><label class="shot kw kw36" for="c36d"></label><label class="shot b1w b1w36" for="k361"></label><label class="shot b2w b2w36" for="k362"></label><label class="shot bkw bkw36" for="k36d"></label></div>
+    <div class="w w37"><label class="shot a1w a1w37" for="c371"></label><label class="shot a2w a2w37" for="c372"></label><label class="shot kw kw37" for="c37d"></label><label class="shot b1w b1w37" for="k371"></label><label class="shot b2w b2w37" for="k372"></label><label class="shot bkw bkw37" for="k37d"></label></div>
+    <i class="pausedSlots t12 s0"></i>
+    <i class="pausedSlots t12 s1"></i>
+    <i class="pausedSlots t26 s2"></i>
+    <i class="pausedSlots t26 s3"></i>
+    <i class="pausedSlots t29 s4"></i>
+    <i class="pausedSlots t29 s5"></i>
+    <i class="pausedSlots t2 s6"></i>
+    <i class="pausedSlots t2 s7"></i>
+    <i class="pausedSlots t2 s8"></i>
+    <i class="pausedSlots t26 s9"></i>
+    <i class="pausedSlots t26 s10"></i>
+    <i class="pausedSlots t31 s11"></i>
+    <i class="pausedSlots t29 s12"></i>
+    <i class="pausedSlots t29 s13"></i>
+    <i class="pausedSlots t29 s14"></i>
+    <i class="pausedSlots t30 s15"></i>
+    <i class="pausedSlots t26 s16"></i>
+    <i class="pausedSlots t26 s17"></i>
+    <i class="pausedSlots t31 s18"></i>
+    <i class="pausedSlots t31 s19"></i>
+    <i class="pausedSlots t14 s20"></i>
+    <i class="pausedSlots t14 s21"></i>
+    <i class="pausedSlots t4 s22"></i>
+    <i class="pausedSlots t29 s23"></i>
+    <i class="pausedSlots t26 s24"></i>
+    <i class="pausedSlots t26 s25"></i>
+    <i class="pausedSlots t31 s26"></i>
+    <i class="pausedSlots t30 s27"></i>
+    <i class="pausedSlots t30 s28"></i>
+    <i class="pausedSlots t30 s29"></i>
+    <i class="pausedSlots t29 s30"></i>
+    <i class="pausedSlots t30 s31"></i>
+    <i class="pausedSlots t8 s32"></i>
+    <i class="pausedSlots t8 s33"></i>
+    <i class="pausedSlots t30 s34"></i>
+    <i class="pausedSlots t3 s35"></i>
+    <i class="pausedSlots t29 s36"></i>
+    <i class="pausedSlots t3 s37"></i>
+    <i class="pausedSlots t39 s38"></i>
+    <i class="pausedSlots t2 s39"></i>
+    <i class="pausedSlots t14 s40"></i>
+    <i class="pausedSlots t14 s41"></i>
+    <i class="pausedSlots t31 s42"></i>
+    <i class="pausedSlots t3 s43"></i>
+    <i class="pausedSlots t3 s44"></i>
+    <i class="pausedSlots t25 s45"></i>
+    <i class="pausedSlots t35 s46"></i>
+    <i class="pausedSlots t31 s47"></i>
+    <i class="pausedSlots t31 s48"></i>
+    <i class="pausedSlots t14 s49"></i>
+    <i class="pausedSlots t14 s50"></i>
+    <i class="pausedSlots t16 s51"></i>
+    <i class="pausedSlots t14 s52"></i>
+    <i class="pausedSlots t26 s53"></i>
+    <i class="pausedSlots t26 s54"></i>
+    <i class="pausedSlots t25 s55"></i>
+    <i class="pausedSlots t14 s56"></i>
+    <i class="pausedSlots t24 s57"></i>
+    <i class="pausedSlots t27 s58"></i>
+    <i class="pausedSlots t25 s59"></i>
+    <i class="pausedSlots t14 s60"></i>
+    <i class="pausedSlots t14 s61"></i>
+    <i class="pausedSlots t14 s62"></i>
+    <i class="pausedSlots t30 s63"></i>
+    <i class="pausedSlots t14 s64"></i>
+    <i class="pausedSlots t11 s65"></i>
+    <i class="pausedSlots t11 s66"></i>
+    <i class="pausedSlots t24 s67"></i>
+    <i class="pausedSlots t0 s68"></i>
+    <i class="pausedSlots t35 s69"></i>
+    <i class="pausedSlots t35 s70"></i>
+    <i class="pausedSlots t35 s71"></i>
+    <i class="pausedSlots t11 s72"></i>
+    <i class="pausedSlots t11 s73"></i>
+    <i class="pausedSlots t11 s74"></i>
+    <i class="pausedSlots t11 s75"></i>
+    <i class="pausedSlots t35 s76"></i>
+    <i class="pausedSlots t14 s77"></i>
+    <i class="pausedSlots t14 s78"></i>
+    <i class="pausedSlots t4 s79"></i>
+    <i class="pausedSlots t4 s80"></i>
+    <i class="pausedSlots t4 s81"></i>
+    <i class="pausedSlots t14 s82"></i>
+    <i class="pausedSlots t14 s83"></i>
+    <i class="pausedSlots t13 s84"></i>
+    <i class="pausedSlots t24 s85"></i>
+    <i class="pausedSlots t13 s86"></i>
+    <i class="pausedSlots t11 s87"></i>
+    <i class="pausedSlots t11 s88"></i>
+    <i class="pausedSlots t11 s89"></i>
+    <i class="pausedSlots t11 s90"></i>
+    <i class="pausedSlots t24 s91"></i>
+    <i class="pausedSlots t14 s92"></i>
+    <i class="pausedSlots t36 s93"></i>
+    <i class="pausedSlots t37 s94"></i>
+    <i class="pausedSlots t14 s95"></i>
+    <i class="pausedSlots t1 s96"></i>
+    <i class="pausedSlots t14 s97"></i>
+    <i class="pausedSlots t14 s98"></i>
+    <i class="pausedSlots t6 s99"></i>
+    <i class="pausedSlots t24 s100"></i>
+    <i class="pausedSlots t14 s101"></i>
+    <i class="pausedSlots t14 s102"></i>
+    <i class="pausedSlots t23 s103"></i>
+    <i class="pausedSlots t14 s104"></i>
+    <i class="pausedSlots t14 s105"></i>
+    <i class="pausedSlots t14 s106"></i>
+    <i class="pausedSlots t25 s107"></i>
+    <i class="pausedSlots t19 s108"></i>
+    <i class="pausedSlots t24 s109"></i>
+    <i class="pausedSlots t14 s110"></i>
+    <i class="pausedSlots t9 s111"></i>
+    <i class="pausedSlots t33 s112"></i>
+    <i class="pausedSlots t14 s113"></i>
+    <i class="pausedSlots t24 s114"></i>
+    <i class="pausedSlots t19 s115"></i>
+    <i class="pausedSlots t14 s116"></i>
+    <i class="pausedSlots t14 s117"></i>
+    <i class="pausedSlots t14 s118"></i>
+    <i class="pausedSlots t26 s119"></i>
+    <i class="pausedSlots t24 s120"></i>
+    <i class="pausedSlots dk0"></i>
+    <i class="pausedSlots dk1"></i>
+    <i class="pausedSlots dk2"></i>
+    <i class="pausedSlots dk3"></i>
+    <i class="pausedSlots dk4"></i>
+    <i class="pausedSlots dk5"></i>
+    <i class="pausedSlots dk6"></i>
+    <i class="pausedSlots dk7"></i>
+    <i class="pausedSlots dk8"></i>
+    <i class="pausedSlots dk9"></i>
+    <i class="pausedSlots dk10"></i>
+    <i class="pausedSlots dk11"></i>
+    <i class="pausedSlots dk12"></i>
+    <i class="pausedSlots dk13"></i>
+    <i class="pausedSlots dk14"></i>
+    <i class="pausedSlots dk15"></i>
+    <i class="pausedSlots dk16"></i>
+    <i class="pausedSlots dk17"></i>
+    <i class="pausedSlots dk18"></i>
+    <i class="pausedSlots dk21"></i>
+    <i class="pausedSlots dk22"></i>
+    <i class="pausedSlots dk23"></i>
+    <i class="pausedSlots dk24"></i>
+    <i class="pausedSlots dk27"></i>
+    <i class="pausedSlots dk28"></i>
+    <i class="pausedSlots dk29"></i>
+    <i class="pausedSlots dk30"></i>
+    <i class="pausedSlots dk32"></i>
+    <i class="pausedSlots dk33"></i>
+    <i class="pausedSlots dk34"></i>
+    <i class="pausedSlots dk36"></i>
+    <i class="pausedSlots dk37"></i>
+      <i class="g gp" style="translate:512px 32px 512px"></i>
+      <i class="g gs" style="translate:512px -32px 512px"></i>
+      <i class="g gp" style="translate:1536px 32px 512px"></i>
+      <i class="g gs" style="translate:1536px -32px 512px"></i>
+      <i class="g gp" style="translate:2560px 32px 512px"></i>
+      <i class="g gs" style="translate:2560px -32px 512px"></i>
+      <i class="g gp" style="translate:512px 32px 1536px"></i>
+      <i class="g gs" style="translate:512px -32px 1536px"></i>
+      <i class="g gp" style="translate:1536px 32px 1536px"></i>
+      <i class="g gs" style="translate:1536px -32px 1536px"></i>
+      <i class="g gp" style="translate:2560px 32px 1536px"></i>
+      <i class="g gs" style="translate:2560px -32px 1536px"></i>
+      <i class="g gp" style="translate:3584px 32px 1536px"></i>
+      <i class="g gs" style="translate:3584px -32px 1536px"></i>
+      <i class="g gp" style="translate:512px 32px 2560px"></i>
+      <i class="g gs" style="translate:512px -32px 2560px"></i>
+      <i class="g gp" style="translate:1536px 32px 2560px"></i>
+      <i class="g gs" style="translate:1536px -32px 2560px"></i>
+      <i class="g gp" style="translate:2560px 32px 2560px"></i>
+      <i class="g gs" style="translate:2560px -32px 2560px"></i>
+      <i class="g gp" style="translate:3584px 32px 2560px"></i>
+      <i class="g gs" style="translate:3584px -32px 2560px"></i>
+      <i class="g gp" style="translate:512px 32px 3584px"></i>
+      <i class="g gs" style="translate:512px -32px 3584px"></i>
+      <i class="g gp" style="translate:1536px 32px 3584px"></i>
+      <i class="g gs" style="translate:1536px -32px 3584px"></i>
+      <i class="g gp" style="translate:2560px 32px 3584px"></i>
+      <i class="g gs" style="translate:2560px -32px 3584px"></i>
+      <i class="f p0"></i>
+      <i class="f p1"></i>
+      <i class="f p2"></i>
+      <i class="f p3"></i>
+      <i class="f p4"></i>
+      <i class="f p5"></i>
+      <i class="f p6"></i>
+      <i class="f p7"></i>
+      <i class="f p8"></i>
+      <i class="f p9"></i>
+      <i class="f p10"></i>
+      <i class="f p11"></i>
+      <i class="f p12"></i>
+      <i class="f p13"></i>
+      <i class="f p14"></i>
+      <i class="f p15"></i>
+      <i class="f p16"></i>
+      <i class="f p17"></i>
+      <i class="f p18"></i>
+      <i class="f p19"></i>
+      <i class="f p20"></i>
+      <i class="f p21"></i>
+      <i class="f p22"></i>
+      <i class="f p23"></i>
+      <i class="f p24"></i>
+      <i class="f p25"></i>
+      <i class="f p26"></i>
+      <i class="f p27"></i>
+      <i class="f p28"></i>
+      <i class="f p29"></i>
+      <i class="f p30"></i>
+      <i class="f p31"></i>
+      <i class="f p32"></i>
+      <i class="f p33"></i>
+      <i class="f p34"></i>
+      <i class="f p35"></i>
+      <i class="f p36"></i>
+      <i class="f p37"></i>
+      <i class="f p38"></i>
+      <i class="f p39"></i>
+      <i class="f p40"></i>
+      <i class="f p41"></i>
+      <i class="f p42"></i>
+      <i class="f p43"></i>
+      <i class="f p44"></i>
+      <i class="f p45"></i>
+      <i class="f p46"></i>
+      <i class="f p47"></i>
+      <i class="f p48"></i>
+      <i class="f p49"></i>
+      <i class="f p50"></i>
+      <i class="f p51"></i>
+      <i class="f p52"></i>
+      <i class="f p53"></i>
+      <i class="f p54"></i>
+      <i class="f p55"></i>
+      <i class="f p56"></i>
+      <i class="f p57"></i>
+      <i class="f p58"></i>
+      <i class="f p59"></i>
+      <i class="f p60"></i>
+      <i class="f p61"></i>
+      <i class="f p62"></i>
+      <i class="f p63"></i>
+      <i class="f p64"></i>
+      <i class="f p65"></i>
+      <i class="f p66"></i>
+      <i class="f p67"></i>
+      <i class="f p68"></i>
+      <i class="f p69"></i>
+      <i class="f p70"></i>
+      <i class="f p71"></i>
+      <i class="f p72"></i>
+      <i class="f p73"></i>
+      <i class="f p74"></i>
+      <i class="f p75"></i>
+      <i class="f p76"></i>
+      <i class="f p77"></i>
+      <i class="f p78"></i>
+      <i class="f p79"></i>
+      <i class="f p80"></i>
+      <i class="f p81"></i>
+      <i class="f p82"></i>
+      <i class="f p83"></i>
+      <i class="f p84"></i>
+      <i class="f p85"></i>
+      <i class="f p86"></i>
+      <i class="f p87"></i>
+      <i class="f p88"></i>
+      <i class="f p89"></i>
+      <i class="f p90"></i>
+      <i class="f p91"></i>
+      <i class="f p92"></i>
+      <i class="f p93"></i>
+      <i class="f p94"></i>
+      <i class="f p95"></i>
+      <i class="f p96"></i>
+      <i class="f p97"></i>
+      <i class="f p98"></i>
+      <i class="f p99"></i>
+      <i class="f p100"></i>
+      <i class="f p101"></i>
+      <i class="f p102"></i>
+      <i class="f p103"></i>
+      <i class="f p104"></i>
+      <i class="f p105"></i>
+      <i class="f p106"></i>
+      <i class="f p107"></i>
+      <i class="f p108"></i>
+      <i class="f p109"></i>
+      <i class="f p110"></i>
+      <i class="f p111"></i>
+      <i class="f p112"></i>
+      <i class="f p113"></i>
+      <i class="f p114"></i>
+      <i class="f p115"></i>
+      <i class="f p116"></i>
+      <i class="f p117"></i>
+      <i class="f p118"></i>
+      <i class="f p119"></i>
+      <i class="f p120"></i>
+      <i class="f p121"></i>
+      <i class="f p122"></i>
+      <i class="f p123"></i>
+      <i class="f p124"></i>
+      <i class="f p125"></i>
+      <i class="f p126"></i>
+      <i class="f p127"></i>
+      <i class="f p128"></i>
+      <i class="f p129"></i>
+      <i class="f p130"></i>
+      <i class="f p131"></i>
+      <i class="f p132"></i>
+      <i class="f p133"></i>
+      <i class="f p134"></i>
+      <i class="f p135"></i>
+      <i class="f p136"></i>
+      <i class="f p137"></i>
+      <i class="f p138"></i>
+      <i class="f p139"></i>
+      <i class="f p140"></i>
+      <i class="f p141"></i>
+      <i class="f p142"></i>
+      <i class="f p143"></i>
+      <i class="f p144"></i>
+      <i class="f p145"></i>
+      <i class="f p146"></i>
+      <i class="f p147"></i>
+      <i class="f p148"></i>
+      <i class="f p149"></i>
+      <i class="f p150"></i>
+      <i class="f p151"></i>
+      <i class="f p152"></i>
+      <i class="f p153"></i>
+      <i class="f p154"></i>
+      <i class="f p155"></i>
+      <i class="f p156"></i>
+      <i class="f p157"></i>
+      <i class="f p158"></i>
+      <i class="f p159"></i>
+      <i class="f p160"></i>
+      <i class="f p161"></i>
+      <i class="f p162"></i>
+      <i class="f p163"></i>
+      <i class="f p164"></i>
+      <i class="f p165"></i>
+      <i class="f p166"></i>
+      <i class="f p167"></i>
+      <i class="f p168"></i>
+      <i class="f p169"></i>
+      <i class="f p170"></i>
+      <i class="f p171"></i>
+      <i class="f p172"></i>
+      <i class="f p173"></i>
+      <i class="f p174"></i>
+      <i class="f p175"></i>
+      <i class="f p176"></i>
+      <i class="f p177"></i>
+      <i class="f p178"></i>
+      <i class="f p179"></i>
+      <i class="f p180"></i>
+      <i class="f p181"></i>
+      <i class="f p182"></i>
+      <i class="f p183"></i>
+      <i class="f p184"></i>
+      <i class="f p185"></i>
+      <i class="f p186"></i>
+      <i class="f p187"></i>
+      <i class="f p188"></i>
+      <i class="f p189"></i>
+      <i class="f p190"></i>
+      <i class="f p191"></i>
+      <i class="f p192"></i>
+      <i class="f p193"></i>
+      <i class="f p194"></i>
+      <i class="f p195"></i>
+      <i class="f p196"></i>
+      <i class="f p197"></i>
+      <i class="f p198"></i>
+      <i class="f p199"></i>
+      <i class="f p200"></i>
+      <i class="f p201"></i>
+      <i class="f p202"></i>
+      <i class="f p203"></i>
+      <i class="f p204"></i>
+      <i class="f p205"></i>
+      <i class="f p206"></i>
+      <i class="f p207"></i>
+      <i class="f p208"></i>
+      <i class="f p209"></i>
+      <i class="f p210"></i>
+      <i class="f p211"></i>
+      <i class="f p212"></i>
+      <i class="f p213"></i>
+      <i class="f p214"></i>
+      <i class="f p215"></i>
+      <i class="f p216"></i>
+      <i class="f p217"></i>
+      <i class="f p218"></i>
+      <i class="f p219"></i>
+      <i class="f p220"></i>
+      <i class="f p221"></i>
+      <i class="f p222"></i>
+      <i class="f p223"></i>
+      <i class="f p224"></i>
+      <i class="f p225"></i>
+      <i class="f p226"></i>
+      <i class="f p227"></i>
+      <i class="f p228"></i>
+      <i class="f p229"></i>
+      <i class="f p230"></i>
+      <i class="f p231"></i>
+      <i class="f p232"></i>
+      <i class="f p233"></i>
+      <i class="f p234"></i>
+      <i class="f p235"></i>
+      <i class="f p236"></i>
+      <i class="f p237"></i>
+      <i class="f p238"></i>
+      <i class="f p239"></i>
+      <i class="f p240"></i>
+      <i class="f p241"></i>
+      <i class="f p242"></i>
+      <i class="f p243"></i>
+      <i class="f p244"></i>
+      <i class="f p245"></i>
+      <i class="f p246"></i>
+      <i class="f p247"></i>
+      <i class="f p248"></i>
+      <i class="f p249"></i>
+      <i class="f p250"></i>
+      <i class="f p251"></i>
+      <i class="f p252"></i>
+      <i class="f p253"></i>
+      <i class="f p254"></i>
+      <i class="f p255"></i>
+      <i class="f p256"></i>
+      <i class="f p257"></i>
+      <i class="f p258"></i>
+      <i class="f p259"></i>
+      <i class="f p260"></i>
+      <i class="f p261"></i>
+      <i class="f p262"></i>
+      <i class="f p263"></i>
+      <i class="f p264"></i>
+      <i class="f p265"></i>
+      <i class="f p266"></i>
+      <i class="f p267"></i>
+      <i class="f p268"></i>
+      <i class="f p269"></i>
+      <i class="f p270"></i>
+      <i class="f p271"></i>
+      <i class="f p272"></i>
+      <i class="f p273"></i>
+      <i class="f p274"></i>
+      <i class="f p275"></i>
+      <i class="f p276"></i>
+      <i class="f p277"></i>
+      <i class="f p278"></i>
+      <i class="f p279"></i>
+      <i class="f p280"></i>
+      <i class="f p281"></i>
+      <i class="f p282"></i>
+      <i class="f p283"></i>
+      <i class="f p284"></i>
+      <i class="f p285"></i>
+      <i class="f p286"></i>
+      <i class="f p287"></i>
+      <i class="f p288"></i>
+      <i class="f p289"></i>
+      <i class="f p290"></i>
+      <i class="f p291"></i>
+      <i class="f p292"></i>
+      <i class="f p293"></i>
+      <i class="f p294"></i>
+      <i class="f p295"></i>
+      <i class="f p296"></i>
+      <i class="f p297"></i>
+      <i class="f p298"></i>
+      <i class="f p299"></i>
+      <i class="f p300"></i>
+      <i class="f p301"></i>
+      <i class="f p302"></i>
+      <i class="f p303"></i>
+      <i class="f p304"></i>
+      <i class="f p305"></i>
+      <i class="f p306"></i>
+      <i class="f p307"></i>
+      <i class="f p308"></i>
+      <i class="f p309"></i>
+      <i class="f p310"></i>
+      <i class="f p311"></i>
+      <i class="f p312"></i>
+      <i class="f p313"></i>
+      <i class="f p314"></i>
+      <i class="f p315"></i>
+      <i class="f p316"></i>
+      <i class="f p317"></i>
+      <i class="f p318"></i>
+      <i class="f p319"></i>
+      <i class="f p320"></i>
+      <i class="f p321"></i>
+      <i class="f p322"></i>
+      <i class="f p323"></i>
+      <i class="f p324"></i>
+      <i class="f p325"></i>
+      <i class="f p326"></i>
+      <i class="f p327"></i>
+      <i class="f p328"></i>
+      <i class="f p329"></i>
+      <i class="f p330"></i>
+      <i class="f p331"></i>
+      <i class="f p332"></i>
+      <i class="f p333"></i>
+      <i class="f p334"></i>
+      <i class="f p335"></i>
+      <i class="f p336"></i>
+      <i class="f p337"></i>
+      <i class="f p338"></i>
+      <i class="f p339"></i>
+      <i class="f p340"></i>
+      <i class="f p341"></i>
+      <i class="f p342"></i>
+      <i class="f p343"></i>
+      <i class="f p344"></i>
+      <i class="f p345"></i>
+      <i class="f p346"></i>
+      <i class="f p347"></i>
+      <i class="f p348"></i>
+      <i class="f p349"></i>
+      <i class="f p350"></i>
+      <i class="f p351"></i>
+      <i class="f p352"></i>
+      <i class="f p353"></i>
+      <i class="f p354"></i>
+      <i class="f p355"></i>
+      <i class="f p356"></i>
+      <i class="f p357"></i>
+      <i class="f p358"></i>
+      <i class="f p359"></i>
+      <i class="f p360"></i>
+      <i class="f p361"></i>
+      <i class="f p362"></i>
+      <i class="f p363"></i>
+      <i class="f p364"></i>
+      <i class="f p365"></i>
+      <i class="f p366"></i>
+      <i class="f p367"></i>
+      <i class="f p368"></i>
+      <i class="f p369"></i>
+      <i class="f p370"></i>
+      <i class="f p371"></i>
+      <i class="f p372"></i>
+      <i class="f p373"></i>
+      <i class="f p374"></i>
+      <i class="f p375"></i>
+      <i class="f p376"></i>
+      <i class="f p377"></i>
+      <i class="f p378"></i>
+      <i class="f p379"></i>
+      <i class="f p380"></i>
+      <i class="f p381"></i>
+      <i class="f p382"></i>
+      <i class="f p383"></i>
+      <i class="f p384"></i>
+      <i class="f p385"></i>
+      <i class="f p386"></i>
+      <i class="f p387"></i>
+      <i class="f p388"></i>
+      <i class="f p389"></i>
+      <i class="f p390"></i>
+      <i class="f p391"></i>
+      <i class="f p392"></i>
+      <i class="f p393"></i>
+      <i class="f p394"></i>
+      <i class="f p395"></i>
+      <i class="f p396"></i>
+      <i class="f p397"></i>
+      <i class="f p398"></i>
+      <i class="f p399"></i>
+      <i class="f p400"></i>
+      <i class="f p401"></i>
+      <i class="f p402"></i>
+      <i class="f p403"></i>
+      <i class="f p404"></i>
+      <i class="f p405"></i>
+      <i class="f p406"></i>
+      <i class="f p407"></i>
+      <i class="f p408"></i>
+      <i class="f p409"></i>
+      <i class="f p410"></i>
+      <i class="f p411"></i>
+      <i class="f p412"></i>
+      <i class="f p413"></i>
+      <i class="f p414"></i>
+      <i class="f p415"></i>
+      <i class="f p416"></i>
+      <i class="f p417"></i>
+      <i class="f p418"></i>
+      <i class="f p419"></i>
+      <i class="f p420"></i>
+      <i class="f p421"></i>
+      <i class="f p422"></i>
+      <i class="f p423"></i>
+      <i class="f p424"></i>
+      <i class="f p425"></i>
+      <i class="f p426"></i>
+      <i class="f p427"></i>
+      <i class="f p428"></i>
+      <i class="f p429"></i>
+      <i class="f p430"></i>
+      <i class="f p431"></i>
+      <i class="f p432"></i>
+      <i class="f p433"></i>
+      <i class="f p434"></i>
+      <i class="f p435"></i>
+      <i class="f p436"></i>
+      <i class="f p437"></i>
+      <i class="f p438"></i>
+      <i class="f p439"></i>
+      <i class="f p440"></i>
+      <i class="f p441"></i>
+      <i class="f p442"></i>
+      <i class="f p443"></i>
+      <i class="f p444"></i>
+      <i class="f p445"></i>
+      <i class="f p446"></i>
+      <i class="f p447"></i>
+      <i class="f p448"></i>
+      <i class="f p449"></i>
+      <i class="f p450"></i>
+      <i class="f p451"></i>
+      <i class="f p452"></i>
+      <i class="f p453"></i>
+      <i class="f p454"></i>
+      <i class="f p455"></i>
+      <i class="f p456"></i>
+      <i class="f p457"></i>
+      <i class="f p458"></i>
+      <i class="f p459"></i>
+      <i class="f p460"></i>
+      <i class="f p461"></i>
+      <i class="f p462"></i>
+      <i class="f p463"></i>
+      <i class="f p464"></i>
+      <i class="f p465"></i>
+      <i class="f p466"></i>
+      <i class="f p467"></i>
+      <i class="f p468"></i>
+      <i class="f p469"></i>
+      <i class="f p470"></i>
+      <i class="f p471"></i>
+      <i class="f p472"></i>
+      <i class="f p473"></i>
+      <i class="f p474"></i>
+      <i class="f p475"></i>
+      <i class="f p476"></i>
+      <i class="f p477"></i>
+      <i class="f p478"></i>
+      <i class="f p479"></i>
+      <i class="f p480"></i>
+      <i class="f p481"></i>
+      <i class="f p482"></i>
+      <i class="f p483"></i>
+      <i class="f p484"></i>
+      <i class="f p485"></i>
+      <i class="f p486"></i>
+      <i class="f p487"></i>
+      <i class="f p488"></i>
+      <i class="f p489"></i>
+      <i class="f p490"></i>
+      <i class="f p491"></i>
+      <i class="f p492"></i>
+      <i class="f p493"></i>
+      <i class="f p494"></i>
+      <i class="f p495"></i>
+      <i class="f p496"></i>
+      <i class="f p497"></i>
+      <i class="f p498"></i>
+      <i class="f p499"></i>
+      <i class="f p500"></i>
+      <i class="f p501"></i>
+      <i class="f p502"></i>
+      <i class="f p503"></i>
+      <i class="f p504"></i>
+      <i class="f p505"></i>
+      <i class="f p506"></i>
+      <i class="f p507"></i>
+      <i class="f p508"></i>
+      <i class="f p509"></i>
+      <i class="f p510"></i>
+      <i class="f p511"></i>
+      <i class="f p512"></i>
+      <i class="f p513"></i>
+      <i class="f p514"></i>
+      <i class="f p515"></i>
+      <i class="f p516"></i>
+      <i class="f p517"></i>
+      <i class="f p518"></i>
+      <i class="f p519"></i>
+      <i class="f p520"></i>
+      <i class="f p521"></i>
+      <i class="f p522"></i>
+      <i class="f p523"></i>
+      <i class="f p524"></i>
+      <i class="f p525"></i>
+      <i class="f p526"></i>
+      <i class="f p527"></i>
+      <i class="f p528"></i>
+      <i class="f p529"></i>
+      <i class="f p530"></i>
+      <i class="f p531"></i>
+      <i class="f p532"></i>
+      <i class="f p533"></i>
+      <i class="f p534"></i>
+      <i class="f p535"></i>
+      <i class="f p536"></i>
+      <i class="f p537"></i>
+      <i class="f p538"></i>
+      <i class="f p539"></i>
+      <i class="f p540"></i>
+      <i class="f p541"></i>
+      <i class="f p542"></i>
+      <i class="f p543"></i>
+      <i class="f p544"></i>
+      <i class="f p545"></i>
+      <i class="f p546"></i>
+      <i class="f p547"></i>
+      <i class="f p548"></i>
+      <i class="f p549"></i>
+      <i class="f p550"></i>
+      <i class="f p551"></i>
+      <i class="f p552"></i>
+      <i class="f p553"></i>
+      <i class="f p554"></i>
+      <i class="f p555"></i>
+      <i class="f p556"></i>
+      <i class="f p557"></i>
+      <i class="f p558"></i>
+      <i class="f p559"></i>
+      <i class="f p560"></i>
+      <i class="f p561"></i>
+      <i class="f p562"></i>
+      <i class="f p563"></i>
+      <i class="f p564"></i>
+      <i class="f p565"></i>
+      <i class="f p566"></i>
+      <i class="f p567"></i>
+      <i class="f p568"></i>
+      <i class="f p569"></i>
+      <i class="f p570"></i>
+      <i class="f p571"></i>
+      <i class="f p572"></i>
+      <i class="f p573"></i>
+      <i class="f p574"></i>
+      <i class="f p575"></i>
+      <i class="f p576"></i>
+      <i class="f p577"></i>
+      <i class="f p578"></i>
+      <i class="f p579"></i>
+      <i class="f p580"></i>
+      <i class="f p581"></i>
+      <i class="f p582"></i>
+      <i class="f p583"></i>
+      <i class="f p584"></i>
+      <i class="f p585"></i>
+      <i class="f p586"></i>
+      <i class="f p587"></i>
+      <i class="f p588"></i>
+      <i class="f p589"></i>
+      <i class="f p590"></i>
+      <i class="f p591"></i>
+      <i class="f p592"></i>
+      <i class="f p593"></i>
+      <i class="f p594"></i>
+      <i class="f p595"></i>
+      <i class="f p596"></i>
+      <i class="f p597"></i>
+      <i class="f p598"></i>
+      <i class="f p599"></i>
+      <i class="f p600"></i>
+      <i class="f p601"></i>
+      <i class="f p602"></i>
+      <i class="f p603"></i>
+      <i class="f p604"></i>
+      <i class="f p605"></i>
+      <i class="f p606"></i>
+      <i class="f p607"></i>
+      <i class="f p608"></i>
+      <i class="f p609"></i>
+      <i class="f p610"></i>
+      <i class="f p611"></i>
+      <i class="f p612"></i>
+      <i class="f p613"></i>
+      <i class="f p614"></i>
+      <i class="f p615"></i>
+      <i class="f p616"></i>
+      <i class="f p617"></i>
+      <i class="f p618"></i>
+      <i class="f p619"></i>
+      <i class="f p620"></i>
+      <i class="f p621"></i>
+      <i class="f p622"></i>
+      <i class="f p623"></i>
+      <i class="f p624"></i>
+      <i class="f p625"></i>
+      <i class="f p626"></i>
+      <i class="f p627"></i>
+      <i class="f p628"></i>
+      <i class="f p629"></i>
+      <i class="f p630"></i>
+      <i class="f p631"></i>
+      <i class="f p632"></i>
+      <i class="f p633"></i>
+      <i class="f p634"></i>
+      <i class="f p635"></i>
+      <i class="f p636"></i>
+      <i class="f p637"></i>
+      <i class="f p638"></i>
+      <i class="f p639"></i>
+      <i class="f p640"></i>
+      <i class="f p641"></i>
+      <i class="f p642"></i>
+      <i class="f p643"></i>
+      <i class="f p644"></i>
+      <i class="f p645"></i>
+      <i class="f p646"></i>
+      <i class="f p647"></i>
+      <i class="f p648"></i>
+      <i class="f p649"></i>
+      <i class="f p650"></i>
+      <i class="f p651"></i>
+      <i class="f p652"></i>
+      <i class="f p653"></i>
+      <i class="f p654"></i>
+      <i class="f p655"></i>
+      <i class="f p656"></i>
+      <i class="f p657"></i>
+      <i class="f p658"></i>
+      <i class="f p659"></i>
+      <i class="f p660"></i>
+      <i class="f p661"></i>
+      <i class="f p662"></i>
+      <i class="f p663"></i>
+      <i class="f p664"></i>
+      <i class="f p665"></i>
+      <i class="f p666"></i>
+      <i class="f p667"></i>
+      <i class="f p668"></i>
+      <i class="f p669"></i>
+      <i class="f p670"></i>
+      <i class="f p671"></i>
+      <i class="f p672"></i>
+      <i class="f p673"></i>
+      <i class="f p674"></i>
+      <i class="f p675"></i>
+      <i class="f p676"></i>
+      <i class="f p677"></i>
+      <i class="f p678"></i>
+      <i class="f p679"></i>
+      <i class="f p680"></i>
+      <i class="f p681"></i>
+      <i class="f p682"></i>
+      <i class="f p683"></i>
+      <i class="f p684"></i>
+      <i class="f p685"></i>
+      <i class="f p686"></i>
+      <i class="f p687"></i>
+      <i class="f p688"></i>
+      <i class="f p689"></i>
+      <i class="f p690"></i>
+      <i class="f p691"></i>
+      <i class="f p692"></i>
+      <i class="f p693"></i>
+      <i class="f p694"></i>
+      <i class="f p695"></i>
+      <i class="f p696"></i>
+      <i class="f p697"></i>
+      <i class="f p698"></i>
+      <i class="f p699"></i>
+      <i class="f p700"></i>
+      <i class="f p701"></i>
+      <i class="f p702"></i>
+      <i class="f p703"></i>
+      <i class="f p704"></i>
+      <i class="f p705"></i>
+      <i class="f p706"></i>
+      <i class="f p707"></i>
+      <i class="f p708"></i>
+      <i class="f p709"></i>
+      <i class="f p710"></i>
+      <i class="f p711"></i>
+      <i class="f p712"></i>
+      <i class="f p713"></i>
+      <i class="f p714"></i>
+      <i class="f p715"></i>
+      <i class="f p716"></i>
+      <i class="f p717"></i>
+      <i class="f p718"></i>
+      <i class="f p719"></i>
+      <i class="f p720"></i>
+      <i class="f p721"></i>
+      <i class="f p722"></i>
+      <i class="f p723"></i>
+      <i class="f p724"></i>
+      <i class="f p725"></i>
+      <i class="f p726"></i>
+      <i class="f p727"></i>
+      <i class="f p728"></i>
+      <i class="f p729"></i>
+      <i class="f p730"></i>
+      <i class="f p731"></i>
+      <i class="f p732"></i>
+      <i class="f p733"></i>
+      <i class="f p734"></i>
+      <i class="f p735"></i>
+      <i class="f p736"></i>
+      <i class="f p737"></i>
+      <i class="f p738"></i>
+      <i class="f p739"></i>
+      <i class="f p740"></i>
+      <i class="f p741"></i>
+      <i class="f p742"></i>
+      <i class="f p743"></i>
+      <i class="f p744"></i>
+      <i class="f p745"></i>
+      <i class="f p746"></i>
+      <i class="f p747"></i>
+      <i class="f p748"></i>
+      <i class="f p749"></i>
+      <i class="f p750"></i>
+      <i class="f p751"></i>
+      <i class="f p752"></i>
+      <i class="f p753"></i>
+      <i class="f p754"></i>
+      <i class="f p755"></i>
+      <i class="f p756"></i>
+      <i class="f p757"></i>
+      <i class="f p758"></i>
+      <i class="f p759"></i>
+      <i class="f p760"></i>
+      <i class="f p761"></i>
+      <i class="f p762"></i>
+      <i class="f p763"></i>
+      <i class="f p764"></i>
+      <i class="f p765"></i>
+      <i class="f p766"></i>
+      <i class="f p767"></i>
+      <i class="f p768"></i>
+      <i class="f p769"></i>
+      <i class="f p770"></i>
+      <i class="f p771"></i>
+      <i class="f p772"></i>
+      <i class="f p773"></i>
+      <i class="f p774"></i>
+      <i class="f p775"></i>
+      <i class="f p776"></i>
+      <i class="f p777"></i>
+      <i class="f p778"></i>
+      <i class="f p779"></i>
+      <i class="f p780"></i>
+      <i class="f p781"></i>
+      <i class="f p782"></i>
+      <i class="f p783"></i>
+      <i class="f p784"></i>
+      <i class="f p785"></i>
+      <i class="f p786"></i>
+      <i class="f p787"></i>
+      <i class="f p788"></i>
+      <i class="f p789"></i>
+      <i class="f p790"></i>
+      <i class="f p791"></i>
+      <i class="f p792"></i>
+      <i class="f p793"></i>
+      <i class="f p794"></i>
+      <i class="f p795"></i>
+      <i class="f p796"></i>
+      <i class="f p797"></i>
+      <i class="f p798"></i>
+      <i class="f p799"></i>
+    </div></div></div></div>
+  </div>
+  <div class="stick"><div class="pad"></div><div class="back"><i class="aimBack"></i></div></div><button type="button" autofocus class="trigger"></button>
+  <div class="minimap"><i class="look"></i><i class="me"></i></div>
+  <p class="hint">crosshair: yellow &mdash; door, blue &mdash; secret wall, red &mdash; lift. click to use</p>
+  <label class="use u0a" for="dr0a"></label><label class="use u0b" for="dr0b"></label><label class="use u1a" for="dr1a"></label><label class="use u1b" for="dr1b"></label><label class="use u2a" for="dr2a"></label><label class="use u2b" for="dr2b"></label><label class="use u3a" for="dr3a"></label><label class="use u3b" for="dr3b"></label><label class="use u4a" for="dr4a"></label><label class="use u4b" for="dr4b"></label><label class="use u5a" for="dr5a"></label><label class="use u5b" for="dr5b"></label><label class="use u6a" for="dr6a"></label><label class="use u6b" for="dr6b"></label><label class="use u7a" for="dr7a"></label><label class="use u7b" for="dr7b"></label><label class="use u8a" for="dr8a"></label><label class="use u8b" for="dr8b"></label><label class="use u9a" for="dr9a"></label><label class="use u9b" for="dr9b"></label><label class="use u10a" for="dr10a"></label><label class="use u10b" for="dr10b"></label><label class="use u11a" for="dr11a"></label><label class="use u11b" for="dr11b"></label><label class="use u12a" for="dr12a"></label><label class="use u12b" for="dr12b"></label><label class="use u13a" for="dr13a"></label><label class="use u13b" for="dr13b"></label><label class="use u14a" for="dr14a"></label><label class="use u14b" for="dr14b"></label><label class="use u15a" for="dr15a"></label><label class="use u15b" for="dr15b"></label><label class="use u16a" for="dr16a"></label><label class="use u16b" for="dr16b"></label><label class="use u17a" for="dr17a"></label><label class="use u17b" for="dr17b"></label><label class="use u18a" for="dr18a"></label><label class="use u18b" for="dr18b"></label><label class="use u19a" for="dr19a"></label><label class="use u19b" for="dr19b"></label><label class="use u20a" for="dr20a"></label><label class="use u20b" for="dr20b"></label><label class="use u21a" for="dr21a"></label><label class="use u21b" for="dr21b"></label>
+  <label class="use uw0" for="wi0"></label><label class="use uw1" for="wi1"></label>
+  <label class="use ut0" for="pw0"></label><label class="use ut1" for="pw1"></label><label class="use ut2" for="pw2"></label><label class="use ut3" for="pw3"></label><label class="use ut4" for="pw4"></label>
+  <i class="flash"></i>
+  <i class="weapon"></i>
+  <i class="death"></i>
+  <div class="endScreen">
+  <i class="bj"></i>
+  <i class="eg" style="left:224px;top:38.4px;width:32px;background-position:-288px -883.2px"></i><i class="eg" style="left:256px;top:38.4px;width:32px;background-position:-480px -883.2px"></i><i class="eg" style="left:288px;top:38.4px;width:32px;background-position:-576px -883.2px"></i><i class="eg" style="left:320px;top:38.4px;width:32px;background-position:-576px -883.2px"></i><i class="eg" style="left:352px;top:38.4px;width:32px;background-position:-64px -921.6px"></i><i class="eg" style="left:224px;top:76.8px;width:32px;background-position:-192px -883.2px"></i><i class="eg" style="left:256px;top:76.8px;width:32px;background-position:-576px -883.2px"></i><i class="eg" style="left:288px;top:76.8px;width:32px;background-position:-512px -883.2px"></i><i class="eg" style="left:320px;top:76.8px;width:32px;background-position:0px -921.6px"></i><i class="eg" style="left:352px;top:76.8px;width:32px;background-position:-480px -883.2px"></i><i class="eg" style="left:384px;top:76.8px;width:32px;background-position:-256px -883.2px"></i><i class="eg" style="left:416px;top:76.8px;width:32px;background-position:-128px -921.6px"></i><i class="eg" style="left:448px;top:76.8px;width:32px;background-position:-256px -883.2px"></i><i class="eg" style="left:480px;top:76.8px;width:32px;background-position:-224px -883.2px"></i><i class="eg" style="left:416px;top:38.4px;width:32px;background-position:-64px -844.8px"></i>
+  <i class="eg" style="left:224px;top:134.4px;width:32px;background-position:-160px -883.2px"></i><i class="eg" style="left:256px;top:134.4px;width:32px;background-position:-576px -883.2px"></i><i class="eg" style="left:288px;top:134.4px;width:32px;background-position:-544px -883.2px"></i><i class="eg" style="left:320px;top:134.4px;width:32px;background-position:-160px -921.6px"></i><i class="eg" style="left:352px;top:134.4px;width:32px;background-position:-96px -921.6px"></i><i class="eg ec" style="left:416px;top:134.4px;--g:calc(clamp(0, round(down, calc(var(--bonus) / 10000), 1), 1) * (mod(round(down, calc(var(--bonus) / 10000), 1), 10) + 1))"></i><i class="eg ec" style="left:448px;top:134.4px;--g:calc(clamp(0, round(down, calc(var(--bonus) / 1000), 1), 1) * (mod(round(down, calc(var(--bonus) / 1000), 1), 10) + 1))"></i><i class="eg ec" style="left:480px;top:134.4px;--g:calc(clamp(0, round(down, calc(var(--bonus) / 100), 1), 1) * (mod(round(down, calc(var(--bonus) / 100), 1), 10) + 1))"></i><i class="eg ec" style="left:512px;top:134.4px;--g:calc(clamp(0, round(down, calc(var(--bonus) / 10), 1), 1) * (mod(round(down, calc(var(--bonus) / 10), 1), 10) + 1))"></i><i class="eg ec" style="left:544px;top:134.4px;--g:calc(1 * (mod(round(down, calc(var(--bonus) / 1), 1), 10) + 1))"></i>
+  <i class="eg" style="left:256px;top:192px;width:32px;background-position:-128px -921.6px"></i><i class="eg" style="left:288px;top:192px;width:32px;background-position:-384px -883.2px"></i><i class="eg" style="left:320px;top:192px;width:32px;background-position:-512px -883.2px"></i><i class="eg" style="left:352px;top:192px;width:32px;background-position:-256px -883.2px"></i><i class="eg" style="left:480px;top:192px;width:16px;background-position:0px -883.2px"></i>
+  
+  <i class="eg ec" style="left:416px;top:192px;--g:calc(1 * (mod(round(down, calc(var(--minClamped) / 10), 1), 10) + 1))"></i><i class="eg ec" style="left:448px;top:192px;--g:calc(1 * (mod(round(down, calc(var(--minClamped) / 1), 1), 10) + 1))"></i><i class="eg ec" style="left:496px;top:192px;--g:calc(1 * (mod(round(down, calc(var(--secRest) / 10), 1), 10) + 1))"></i><i class="eg ec" style="left:528px;top:192px;--g:calc(1 * (mod(round(down, calc(var(--secRest) / 1), 1), 10) + 1))"></i>
+  <i class="eg" style="left:288px;top:230.4px;width:32px;background-position:0px -921.6px"></i><i class="eg" style="left:320px;top:230.4px;width:32px;background-position:-128px -883.2px"></i><i class="eg" style="left:352px;top:230.4px;width:32px;background-position:-64px -921.6px"></i><i class="eg" style="left:416px;top:230.4px;width:32px;background-position:-32px -844.8px"></i><i class="eg" style="left:448px;top:230.4px;width:32px;background-position:-64px -844.8px"></i><i class="eg" style="left:480px;top:230.4px;width:16px;background-position:0px -883.2px"></i><i class="eg" style="left:496px;top:230.4px;width:32px;background-position:-128px -844.8px"></i><i class="eg" style="left:528px;top:230.4px;width:32px;background-position:-32px -844.8px"></i>
+  <i class="eg" style="left:144px;top:268.8px;width:32px;background-position:-448px -883.2px"></i><i class="eg" style="left:176px;top:268.8px;width:32px;background-position:-384px -883.2px"></i><i class="eg" style="left:208px;top:268.8px;width:32px;background-position:-480px -883.2px"></i><i class="eg" style="left:240px;top:268.8px;width:32px;background-position:-480px -883.2px"></i><i class="eg" style="left:304px;top:268.8px;width:32px;background-position:-64px -921.6px"></i><i class="eg" style="left:336px;top:268.8px;width:32px;background-position:-128px -883.2px"></i><i class="eg" style="left:368px;top:268.8px;width:32px;background-position:-128px -921.6px"></i><i class="eg" style="left:400px;top:268.8px;width:32px;background-position:-384px -883.2px"></i><i class="eg" style="left:432px;top:268.8px;width:32px;background-position:-576px -883.2px"></i><i class="eg" style="left:592px;top:268.8px;width:32px;background-position:-32px -883.2px"></i><i class="eg ec" style="left:496px;top:268.8px;--g:calc(clamp(0, round(down, calc(var(--pctKill) / 100), 1), 1) * (mod(round(down, calc(var(--pctKill) / 100), 1), 10) + 1))"></i><i class="eg ec" style="left:528px;top:268.8px;--g:calc(clamp(0, round(down, calc(var(--pctKill) / 10), 1), 1) * (mod(round(down, calc(var(--pctKill) / 10), 1), 10) + 1))"></i><i class="eg ec" style="left:560px;top:268.8px;--g:calc(1 * (mod(round(down, calc(var(--pctKill) / 1), 1), 10) + 1))"></i>
+  <i class="eg" style="left:80px;top:307.2px;width:32px;background-position:-96px -921.6px"></i><i class="eg" style="left:112px;top:307.2px;width:32px;background-position:-256px -883.2px"></i><i class="eg" style="left:144px;top:307.2px;width:32px;background-position:-192px -883.2px"></i><i class="eg" style="left:176px;top:307.2px;width:32px;background-position:-64px -921.6px"></i><i class="eg" style="left:208px;top:307.2px;width:32px;background-position:-256px -883.2px"></i><i class="eg" style="left:240px;top:307.2px;width:32px;background-position:-128px -921.6px"></i><i class="eg" style="left:304px;top:307.2px;width:32px;background-position:-64px -921.6px"></i><i class="eg" style="left:336px;top:307.2px;width:32px;background-position:-128px -883.2px"></i><i class="eg" style="left:368px;top:307.2px;width:32px;background-position:-128px -921.6px"></i><i class="eg" style="left:400px;top:307.2px;width:32px;background-position:-384px -883.2px"></i><i class="eg" style="left:432px;top:307.2px;width:32px;background-position:-576px -883.2px"></i><i class="eg" style="left:592px;top:307.2px;width:32px;background-position:-32px -883.2px"></i><i class="eg ec" style="left:496px;top:307.2px;--g:calc(clamp(0, round(down, calc(var(--pctSecret) / 100), 1), 1) * (mod(round(down, calc(var(--pctSecret) / 100), 1), 10) + 1))"></i><i class="eg ec" style="left:528px;top:307.2px;--g:calc(clamp(0, round(down, calc(var(--pctSecret) / 10), 1), 1) * (mod(round(down, calc(var(--pctSecret) / 10), 1), 10) + 1))"></i><i class="eg ec" style="left:560px;top:307.2px;--g:calc(1 * (mod(round(down, calc(var(--pctSecret) / 1), 1), 10) + 1))"></i>
+  <i class="eg" style="left:16px;top:345.6px;width:32px;background-position:-128px -921.6px"></i><i class="eg" style="left:48px;top:345.6px;width:32px;background-position:-64px -921.6px"></i><i class="eg" style="left:80px;top:345.6px;width:32px;background-position:-256px -883.2px"></i><i class="eg" style="left:112px;top:345.6px;width:32px;background-position:-128px -883.2px"></i><i class="eg" style="left:144px;top:345.6px;width:32px;background-position:-96px -921.6px"></i><i class="eg" style="left:176px;top:345.6px;width:32px;background-position:-160px -921.6px"></i><i class="eg" style="left:208px;top:345.6px;width:32px;background-position:-64px -921.6px"></i><i class="eg" style="left:240px;top:345.6px;width:32px;background-position:-256px -883.2px"></i><i class="eg" style="left:304px;top:345.6px;width:32px;background-position:-64px -921.6px"></i><i class="eg" style="left:336px;top:345.6px;width:32px;background-position:-128px -883.2px"></i><i class="eg" style="left:368px;top:345.6px;width:32px;background-position:-128px -921.6px"></i><i class="eg" style="left:400px;top:345.6px;width:32px;background-position:-384px -883.2px"></i><i class="eg" style="left:432px;top:345.6px;width:32px;background-position:-576px -883.2px"></i><i class="eg" style="left:592px;top:345.6px;width:32px;background-position:-32px -883.2px"></i><i class="eg ec" style="left:496px;top:345.6px;--g:calc(clamp(0, round(down, calc(var(--pctTreasure) / 100), 1), 1) * (mod(round(down, calc(var(--pctTreasure) / 100), 1), 10) + 1))"></i><i class="eg ec" style="left:528px;top:345.6px;--g:calc(clamp(0, round(down, calc(var(--pctTreasure) / 10), 1), 1) * (mod(round(down, calc(var(--pctTreasure) / 10), 1), 10) + 1))"></i><i class="eg ec" style="left:560px;top:345.6px;--g:calc(1 * (mod(round(down, calc(var(--pctTreasure) / 1), 1), 10) + 1))"></i>
+</div>
+</div>
+<div class="statusBar">
+  <i class="hc h_floorNo0"></i><i class="hc h_floorNo1"></i><i class="hc h_score0"></i><i class="hc h_score1"></i><i class="hc h_score2"></i><i class="hc h_score3"></i><i class="hc h_score4"></i><i class="hc h_score5"></i><i class="hc h_lives0"></i><i class="hc h_health0"></i><i class="hc h_health1"></i><i class="hc h_health2"></i><i class="hc h_ammoLeft0"></i><i class="hc h_ammoLeft1"></i>
+  <i class="htw"></i><i class="hkl hkl1"></i><i class="hkl hkl2"></i><i class="hbr"></i>
+</div>
+<div class="intro">
+  <i class="introTitle"></i><i class="introPg13"></i>
+  <label class="introClick" for="play"></label>
+</div>
+<div class="psyched"><i></i></div>
+</div></div>
+</div></div>
+</div></div></div>
+</div></div>
+</div>
+</div>
+</div></div></div>
+</div></div></div>
+</div></div></div>
+</div></div></div>
+</div></div></div>
+</div></div></div>
+</div></div></div>
+</div></div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div></div>
+</div></div>
+</div></div>
+</div></div>
+</div></div></div>
+</div></div>
+</div>
+<p class="noBack">Walking backwards is disabled in Safari: the inner scroll
+container that handles it measures its deflection from the opposite end to its
+own position there, and without that it would swallow the forward gesture.
+Forward movement and turning work.</p>
+
+<p class="stats">
+  planes <b>828</b> &nbsp;
+  enemies <b>37</b> &nbsp; killed <b class="vKills"></b>
+    <b class="pctK"></b> &nbsp;
+  treasure <b class="vTreasure"></b> <b class="pctT"></b> &nbsp;
+    secrets <b class="vSecret"></b> <b class="pctS"></b> &nbsp;
+    score <b class="vScore"></b> &nbsp;
+  perspective <b>437.5px</b> &nbsp; FOV <b>72.37&deg;</b>
+  &nbsp; chain levels <b>87</b>
+  &nbsp; doors <b>22</b>
+</p>
