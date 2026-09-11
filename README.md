@@ -10,7 +10,8 @@ and the level-end screen are all computed by the CSS engine.
 
 Chrome or Edge. Scroll on the picture to move, click the crosshair to shoot and
 to open things, and hit **maximise** to fill the window (then F11 if you want
-the whole screen). The screen scales to whatever width the page has, so it fits
+the whole screen). With a mouse rather than a trackpad, the wheel alone walks
+and **Shift** + the wheel turns. The screen scales to whatever width the page has, so it fits
 a phone as well as a desktop. See [Browser support](#browser-support) before you
 file a bug about Firefox.
 

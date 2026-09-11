@@ -2556,6 +2556,8 @@ const differencesHtml = () => `<details class="diffs">
 const controlsHtml = () => `<p class="controls">
   <b>Controls:</b> <b>scroll on the picture</b> with a wheel or a trackpad
   &mdash; vertically you walk forwards and backwards, horizontally you turn.
+  <b>No trackpad?</b> The mouse wheel alone walks, and <b>Shift</b> + the wheel
+  turns.
   ${WEAPONS || DOORS ? `<b>Click the crosshair</b> to ${
     [WEAPONS ? 'shoot' : null,
      DOORS ? 'open doors, secret walls and the lift' : null].filter(Boolean).join(' and ')
